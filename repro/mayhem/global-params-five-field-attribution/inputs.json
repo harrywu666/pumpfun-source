@@ -1,0 +1,25 @@
+{
+  "pinned_inputs": [
+    {
+      "path": "programs/mayhem/src/lib.rs",
+      "bytes": 26390,
+      "sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2"
+    },
+    {
+      "path": "research/mayhem-globalparams-field-history/evidence/analysis_timeseries.json",
+      "bytes": 30012,
+      "sha256": "c0c3a58fe6a92ba7b4d442159c5e0210441e4cb02266d411c89c29542d09448c"
+    },
+    {
+      "path": "repro/mayhem/global-params-remaining-field-review/REPORT.md",
+      "bytes": 11675,
+      "sha256": "0b1c7659e68e8519a3530861dd73226c52a2d185701cd840b671aa47f4406e06"
+    },
+    {
+      "path": "repro/mayhem/field-role-crosswalk/crosswalk.json",
+      "bytes": 38349,
+      "sha256": "52c670d0e2d2aa066b6e118e9255e58b266ff0f32f969a05e54a3e9b4d3f8044"
+    }
+  ],
+  "repo_root_binding": "programs/mayhem at verify time"
+}
