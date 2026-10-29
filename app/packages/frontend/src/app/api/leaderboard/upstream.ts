@@ -421,6 +421,14 @@ export async function readBoundedJson(response: Response): Promise<unknown> {
     await response.body?.cancel();
     throw new UpstreamValidationError("The upstream response is too large.");
   }
+  const mediaType = (response.headers.get("content-type") ?? "")
+    .split(";", 1)[0]
+    .trim()
+    .toLowerCase();
+  if (!/^application\/(?:[^;\s]+\+)?json$/.test(mediaType)) {
+    await response.body?.cancel();
+    throw new UpstreamValidationError("The upstream response is not JSON.");
+  }
   if (!response.body) {
     throw new UpstreamValidationError("The upstream response has no body.");
   }

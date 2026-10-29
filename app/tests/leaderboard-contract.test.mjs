@@ -283,7 +283,11 @@ test("bounded JSON reader accepts JSON and rejects an oversized body", async () 
   assert.deepEqual(parsed, { ok: true });
 
   await assert.rejects(
-    readBoundedJson(new Response(new Uint8Array(MAX_UPSTREAM_BYTES + 1))),
+    readBoundedJson(
+      new Response(new Uint8Array(MAX_UPSTREAM_BYTES + 1), {
+        headers: { "Content-Type": "application/json" },
+      }),
+    ),
     /too large/,
   );
 });
