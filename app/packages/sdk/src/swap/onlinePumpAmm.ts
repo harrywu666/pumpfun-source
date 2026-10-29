@@ -30,6 +30,7 @@ import {
   GLOBAL_CONFIG_PDA,
   GLOBAL_VOLUME_ACCUMULATOR_PDA,
   poolPda,
+  PUMP_AMM_PROGRAM_ID,
   PUMP_AMM_FEE_CONFIG_PDA,
   userVolumeAccumulatorPda,
 } from "./pda";
@@ -62,6 +63,18 @@ export class OnlinePumpAmmSdk {
     this.program = getPumpAmmProgram(connection);
   }
 
+  private decodePool(
+    poolKey: PublicKey,
+    accountInfo: AccountInfo<Buffer>,
+  ): Pool {
+    if (!accountInfo.owner.equals(PUMP_AMM_PROGRAM_ID)) {
+      throw new Error(
+        `Pool ${poolKey.toBase58()} has account owner ${accountInfo.owner.toBase58()}, expected pump-amm program ${PUMP_AMM_PROGRAM_ID.toBase58()}`,
+      );
+    }
+    return PUMP_AMM_SDK.decodePool(accountInfo);
+  }
+
   async fetchGlobalConfigAccount(): Promise<GlobalConfig> {
     const accountInfo = await this.connection.getAccountInfo(GLOBAL_CONFIG_PDA);
     if (accountInfo === null) {
@@ -85,7 +98,7 @@ export class OnlinePumpAmmSdk {
     if (accountInfo === null) {
       throw new Error("Pool account not found");
     }
-    return PUMP_AMM_SDK.decodePool(accountInfo);
+    return this.decodePool(pool, accountInfo);
   }
 
   fetchGlobalVolumeAccumulator(): Promise<GlobalVolumeAccumulator> {
@@ -227,7 +240,7 @@ export class OnlinePumpAmmSdk {
     const feeConfig = feeConfigAccountInfo
       ? PUMP_AMM_SDK.decodeFeeConfig(feeConfigAccountInfo)
       : null;
-    const pool = PUMP_AMM_SDK.decodePool(poolAccountInfo);
+    const pool = this.decodePool(poolKey, poolAccountInfo);
 
     const { baseMint, quoteMint, poolBaseTokenAccount, poolQuoteTokenAccount } =
       pool;
@@ -349,7 +362,7 @@ export class OnlinePumpAmmSdk {
     const feeConfig = feeConfigAccountInfo
       ? PUMP_AMM_SDK.decodeFeeConfig(feeConfigAccountInfo)
       : null;
-    const pool = PUMP_AMM_SDK.decodePool(poolAccountInfo);
+    const pool = this.decodePool(poolKey, poolAccountInfo);
 
     const { baseMint, quoteMint, poolBaseTokenAccount, poolQuoteTokenAccount } =
       pool;
@@ -468,7 +481,7 @@ export class OnlinePumpAmmSdk {
     const globalConfig = PUMP_AMM_SDK.decodeGlobalConfig(
       globalConfigAccountInfo,
     );
-    const pool = PUMP_AMM_SDK.decodePool(poolAccountInfo);
+    const pool = this.decodePool(poolKey, poolAccountInfo);
 
     const {
       baseMint,
@@ -795,7 +808,7 @@ export class OnlinePumpAmmSdk {
     if (poolAccountInfo === null) {
       throw new Error("Pool account not found");
     }
-    const pool = PUMP_AMM_SDK.decodePool(poolAccountInfo);
+    const pool = this.decodePool(poolKey, poolAccountInfo);
 
     const instructions: TransactionInstruction[] = [];
     if (poolAccountInfo.data.length < POOL_ACCOUNT_NEW_SIZE) {
@@ -853,7 +866,7 @@ export class OnlinePumpAmmSdk {
       if (info === null) {
         throw new Error(`pool=${poolKeys[i].toString()} not found`);
       }
-      return PUMP_AMM_SDK.decodePool(info);
+      return this.decodePool(poolKeys[i], info);
     });
 
     // Every mint and vault once, however many hops share them.
@@ -921,7 +934,7 @@ export class OnlinePumpAmmSdk {
     if (poolAccountInfo === null) {
       throw new Error("Pool account not found");
     }
-    const pool = PUMP_AMM_SDK.decodePool(poolAccountInfo);
+    const pool = this.decodePool(poolKey, poolAccountInfo);
 
     const [baseMintAccountInfo, quoteMintAccountInfo] =
       await this.connection.getMultipleAccountsInfo([
