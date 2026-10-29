@@ -16,6 +16,7 @@ import { createSearchShortcutHandler } from "./search-shortcuts.mjs";
  */
 export function SearchDialog() {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
@@ -108,6 +109,7 @@ export function SearchDialog() {
       >
         <SearchMobileIcon className="size-4 shrink-0 text-text-quaternary" />
         <input
+          ref={inputRef}
           id="global-search"
           name="q"
           type="search"
@@ -126,6 +128,7 @@ export function SearchDialog() {
             className="px-2 py-3 text-sm"
             onClick={() => {
               setQuery("");
+              requestAnimationFrame(() => inputRef.current?.focus());
               if (pathname === "/explore" && currentQuery) {
                 pendingClear.current = true;
                 router.push("/explore");
