@@ -4,11 +4,12 @@ This separate read model implements a bounded public ordinary-reply graph for
 `GET /v1/callout/:calloutId/replies` and
 `GET /v1/callout/replies/:replyId/chain`. It is not original backend source,
 persistence, a production adapter or complete API compatibility. It has no
-default dataset. Financial ranking and required tombstone projections remain
-explicit 501 boundaries. No coin page/UI, quote/repost graph, write endpoint,
-wallet, production request, authentication service or financial computation is
-added. The existing single-callout and separately proposed author-list models
-are not republished or replaced.
+default dataset. Financial ranking remains an explicit 501 boundary. Bounded
+tombstones preserve required list/chain paths without exposing dead-row facts.
+No coin page/UI, quote/repost graph, write endpoint, wallet, production request,
+authentication service or financial computation is added. The existing
+single-callout and separately proposed author-list models are not republished or
+replaced.
 
 ## Evidence
 
@@ -76,11 +77,13 @@ than replaying complete fixture responses.
 ## Supported reads and local policies
 
 Lists return one direct-child level, or top-level ordinary replies without a
-parent. `ALL`, `AUTHOR_ONLY` and `EXCLUDE_AUTHOR` filter live rows using the visible
+parent. `ALL` serves live rows plus a dead bridge whose subtree still has live
+rows; `AUTHOR_ONLY` and `EXCLUDE_AUTHOR` filter live rows using the visible
 callout's canonical author. Quote threads are outside this dataset contract.
-`beforeId` must identify an eligible row in that level/filter; locally it resumes
-after that row in the immutable sorted array. It is not a signed/opaque cursor
-or upstream pagination proof. Unknown/cross-level/filtered IDs return local 400.
+`beforeId` must identify an eligible row, including an included bridge tombstone,
+in that level/filter; locally it resumes after that row in the immutable sorted
+array. It is not a signed/opaque cursor or upstream pagination proof.
+Unknown/cross-level/filtered IDs return local 400.
 
 Local defaults are **limit 30 / ALL / RECENCY / nestedLimit 0**; original server
 defaults are unknown. Canonical positive decimal safe-integer limits are accepted.
@@ -106,16 +109,22 @@ fully live public chain still serves, as declared. Its hidden author identity is
 neither returned nor used for authorReply hints. Unknown/unmappable contexts,
 replies or scopes return 501, not a claim of production absence/REPLY_NOT_FOUND.
 
-### No invented tombstones
+### Bounded tombstone placeholders
 
-The source describes dead-node placeholders, but exact required empty identity
-and financial primitives are not established. **This implementation does not
-synthesize them.** A dead target/ancestor, an ALL level needing a dead bridge to
-live descendants, or selection of a dead parent returns 501
-`CALLOUT_DISCUSSION_TOMBSTONES_UNAVAILABLE`. It never silently removes a bridge
-or exposes retained private content. Dead leaves are absent; non-ALL filters omit
-dead rows because the declared tombstone-page rule applies to ALL. Tombstone
-compatibility remains an explicit gap.
+The source requires dead placeholders but does not establish the exact required
+empty identity and financial primitives. For an `ALL` list row or chain ancestor
+that must preserve a path to live descendants, this implementation projects the
+captured DTO shape with the real ID/linkage/live counts, blank required strings,
+`accountKind: "person"` as a schema-required neutral wire value, zero nonnegative
+counter/cost-basis fields, null optional knowledge and `tombstone: true`. Clients
+must branch on `tombstone` before reading those placeholder fields. This mapping
+is local, not recovered native server behavior.
+
+Dead leaves are absent; non-ALL filters omit dead rows because the declared
+tombstone-page rule applies to ALL. A dead target chain or a request whose
+`parentReplyId` is dead still returns 501
+`CALLOUT_DISCUSSION_TOMBSTONES_UNAVAILABLE`; no dead content, author identity or
+private fact is retained or returned.
 
 ## Runtime and checks
 

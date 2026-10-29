@@ -1,4 +1,4 @@
-/** Public, opt-in local discussion topology. No ranking, persistence or tombstone synthesis. */
+/** Public, opt-in local discussion topology. No ranking, persistence or invented facts. */
 import {
   closeSync,
   constants,
@@ -365,14 +365,55 @@ export class CalloutDiscussionsStore {
       requestError(501, "CALLOUT_DISCUSSION_UNAVAILABLE");
     return this.callouts.discussionContext(calloutId);
   }
+  private tombstone(row: Row): Reply {
+    // The captured wire shape requires strings for hidden identity fields.
+    // Clients branch on tombstone before reading them, so blanks disclose no facts.
+    return {
+      id: row.replyId,
+      content: "",
+      createdAt: null,
+      likeCount: 0,
+      userId: "",
+      walletAddress: null,
+      userName: null,
+      profileImage: null,
+      accountKind: "person",
+      mediaUrl: null,
+      parentMessageId: row.parentReplyId,
+      rootMessageId:
+        row.parentReplyId === null ? null : this.rootReply.get(row.replyId)!,
+      directReplyCount: (this.children.get(row.replyId) ?? []).filter(live)
+        .length,
+      threadReplyCount:
+        row.parentReplyId === null
+          ? this.descendantCounts.get(row.replyId)!
+          : null,
+      tombstone: true,
+      hasLiked: null,
+      viewerFollowsAuthor: null,
+      repostCount: 0,
+      positionAmountHeld: null,
+      positionValueUsd: null,
+      positionPnlUsd: null,
+      positionPnlPercentage: null,
+      positionCostBasisAmount: 0,
+      positionCostBasisUsd: null,
+      positionAmountBoughtUsd: null,
+      positionAmountBought: null,
+      positionRealizedPnlUsd: null,
+      positionAvgEntryMcapUsd: null,
+      isQuote: false,
+      previewReplies: [],
+      authorReply: null,
+    };
+  }
   private project(
     row: Row,
     authorId: string | undefined,
     nestedLimit: number,
     hydrateAuthor = true,
   ): Reply {
-    if (!live(row))
-      requestError(501, "CALLOUT_DISCUSSION_TOMBSTONES_UNAVAILABLE");
+    if (!live(row)) return this.tombstone(row);
     const children = (this.children.get(row.replyId) ?? []).filter(live);
     // Unknown times sort last locally; earliest known author child wins, ties use ascending IDs.
     const candidates = children
@@ -430,21 +471,18 @@ export class CalloutDiscussionsStore {
         requestError(501, "CALLOUT_DISCUSSION_TOMBSTONES_UNAVAILABLE");
       rows = this.children.get(parent.replyId) ?? [];
     } else rows = this.top.get(calloutId) ?? [];
-    // Do not silently remove the bridge to live descendants or fabricate redacted DTO defaults.
-    if (
-      options.filter === "ALL" &&
-      rows.some(
-        (row) => !live(row) && this.descendantCounts.get(row.replyId)! > 0,
-      )
-    )
-      requestError(501, "CALLOUT_DISCUSSION_TOMBSTONES_UNAVAILABLE");
-    rows = rows.filter(
-      (row) =>
-        live(row) &&
-        (options.filter === "ALL" ||
-          (row.authorId === context.authorId) ===
-            (options.filter === "AUTHOR_ONLY")),
-    );
+    rows = rows.filter((row) => {
+      if (!live(row))
+        return (
+          options.filter === "ALL" &&
+          this.descendantCounts.get(row.replyId)! > 0
+        );
+      return (
+        options.filter === "ALL" ||
+        (row.authorId === context.authorId) ===
+          (options.filter === "AUTHOR_ONLY")
+      );
+    });
     let start = 0;
     if (options.beforeId !== null) {
       const index = rows.findIndex((row) => row.replyId === options.beforeId);
@@ -475,7 +513,7 @@ export class CalloutDiscussionsStore {
       ancestors.push(parent);
       current = parent.parentReplyId;
     }
-    if (!live(row) || ancestors.some((parent) => !live(parent)))
+    if (!live(row))
       requestError(501, "CALLOUT_DISCUSSION_TOMBSTONES_UNAVAILABLE");
     return structuredClone({
       callout: context.kind === "visible" ? context.callout : null,

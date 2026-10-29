@@ -402,7 +402,7 @@ test("missing root projection is explicit unavailable, not falsely declared hidd
   fails(() => unmapped.list("root"), 501);
   fails(() => unmapped.chain("top-a"), 501);
 });
-test("dead nodes retain topology only and required tombstone paths fail instead of guessing defaults", () => {
+test("dead bridge nodes use captured tombstones on list and chain without leaking content", () => {
   const data = dataset();
   data.replies.push({
     ...node("dead-leaf", null),
@@ -427,13 +427,43 @@ test("dead nodes retain topology only and required tombstone paths fail instead 
     node("live-after-dead", "dead-bridge"),
   );
   const mixed = store(data);
-  fails(
-    () => mixed.list("root"),
-    501,
-    "CALLOUT_DISCUSSION_TOMBSTONES_UNAVAILABLE",
+  const page = mixed.list("root", q("nestedLimit=2"));
+  assertSchema(page, listSchema, "tombstone list", spec);
+  assert.deepEqual(
+    page.replies.map((r) => r.id),
+    ["top-b", "top-a", "dead-bridge"],
   );
+  const bridge = page.replies[2];
+  assert.equal(bridge.tombstone, true);
+  assert.equal(bridge.content, "");
+  assert.equal(bridge.userId, "");
+  assert.equal(bridge.userName, null);
+  assert.equal(bridge.walletAddress, null);
+  assert.equal(bridge.parentMessageId, null);
+  assert.equal(bridge.rootMessageId, null);
+  assert.equal(bridge.directReplyCount, 1);
+  assert.equal(bridge.threadReplyCount, 1);
+  assert.equal(bridge.hasLiked, null);
+  assert.equal(bridge.viewerFollowsAuthor, null);
+  assert.equal(bridge.isQuote, false);
+  assert.deepEqual(bridge.previewReplies, []);
+  assert.equal(bridge.authorReply, null);
+  assert.deepEqual(
+    mixed.list("root", q("limit=2&beforeId=top-a")).replies.map((r) => r.id),
+    ["dead-bridge"],
+  );
+  assert.deepEqual(mixed.list("root", q("beforeId=dead-bridge")).replies, []);
+  const chained = mixed.chain("live-after-dead");
+  assertSchema(chained, chainSchema, "tombstone chain", spec);
+  assert.deepEqual(
+    chained.ancestors.map((r) => [r.id, r.tombstone]),
+    [["dead-bridge", true]],
+  );
+  assert.equal(chained.ancestors[0].content, "");
+  assert.equal(chained.reply.id, "live-after-dead");
+  assert.equal(chained.reply.tombstone, false);
   fails(
-    () => mixed.chain("live-after-dead"),
+    () => mixed.chain("dead-bridge"),
     501,
     "CALLOUT_DISCUSSION_TOMBSTONES_UNAVAILABLE",
   );
@@ -462,7 +492,14 @@ test("counts are the declared local graph's live descendants at all depths, incl
   const a = s.list("root").replies[1];
   assert.equal(a.directReplyCount, 3);
   assert.equal(a.threadReplyCount, 5);
-  fails(() => s.list("root", q("parentReplyId=top-a")), 501);
+  const children = s.list("root", q("parentReplyId=top-a")).replies;
+  assert.deepEqual(
+    children.map((r) => r.id),
+    ["new-owner", "new-bob", "old-owner", "dead-bridge"],
+  );
+  assert.equal(children.at(-1)!.tombstone, true);
+  assert.equal(children.at(-1)!.directReplyCount, 1);
+  assert.equal(children.at(-1)!.threadReplyCount, null);
   assert.equal(
     s.list("root", q("parentReplyId=top-a&filter=EXCLUDE_AUTHOR")).replies
       .length,
