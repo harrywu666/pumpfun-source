@@ -281,6 +281,22 @@ test("query limits are checked and unsupported chain/carousel/viewer inputs are 
   }
 });
 
+test("a nonzero quotes limit succeeds when there is no callout to hydrate", async () => {
+  const app = buildApp([], { calloutsStore: new CalloutsStore(dataset()) });
+  try {
+    for (const quotesLimit of [1, 20]) {
+      const result = await app.inject({
+        url: `${path.replace("/mint/mint", "/mint/absent")}?quotesLimit=${quotesLimit}`,
+        headers,
+      });
+      assert.equal(result.statusCode, 200);
+      assert.deepEqual(result.json(), { callout: null, quotes: [] });
+    }
+  } finally {
+    await app.close();
+  }
+});
+
 test("no-adapter fixtures remain intact and configured store takes precedence", async () => {
   const fixture: Fixture = {
     method: "GET",

@@ -37,8 +37,8 @@ export function registerCalloutRoutes(
       return reply
         .code(400)
         .send({ error: "BAD_REQUEST", reason: "CALLOUT_LOOKUP_QUERY_INVALID" });
-    // The materialization has no cross-chain resolver or complete reply-quote carousel.
-    if (query.has("chain") || Number(limit) !== 0)
+    // The materialization has no cross-chain resolver.
+    if (query.has("chain"))
       return reply
         .code(501)
         .send({
@@ -51,6 +51,14 @@ export function registerCalloutRoutes(
     };
     try {
       const response = store.getByUserMint(userId, coinMint);
+      // Without a callout the contract requires empty quotes, so no carousel is needed.
+      if (Number(limit) !== 0 && response.callout !== null)
+        return reply
+          .code(501)
+          .send({
+            error: "COMPATIBILITY_NOT_IMPLEMENTED",
+            reason: "CALLOUT_LOOKUP_QUERY_UNSUPPORTED",
+          });
       return reply
         .header("X-Reconstruction-Data-Source", store.dataSource)
         .header("X-Reconstruction-Observed-At", store.observedAt)

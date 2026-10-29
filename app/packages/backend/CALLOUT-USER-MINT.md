@@ -37,9 +37,11 @@ this local implementation does not claim any of those chain behaviors.
 - Unknown authors, visible unmapped rows (whose mint cannot be established),
   multiple matching rows, and a selected row with a nonnull explicit chain
   return local 501 errors. No active-slot selection or chain resolution is guessed.
-- Omitted `quotesLimit` and `0` succeed. Nonzero limits, any `chain`, and unknown
-  query keys return 501: complete reply-quote carousel facts and chain admission
-  are not available here. Repeated keys and malformed/out-of-range limits return
+- Omitted `quotesLimit` and `0` succeed. With no callout, a nonzero limit also
+  succeeds with the contract-required empty `quotes`; an existing callout with a
+  nonzero limit returns 501 because complete reply-quote carousel facts are not
+  available here. Any `chain` and unknown query keys return 501: chain admission
+  is likewise unavailable. Repeated keys and malformed/out-of-range limits return
   local 400. Canonical decimal syntax is local policy, not captured coercion parity.
 - Preserve the developer-key shape gate and successful-read provenance headers.
   Errors do not receive success provenance. Key verification, scope authorization
