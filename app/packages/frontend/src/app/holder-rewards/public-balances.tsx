@@ -10,7 +10,7 @@ type State =
   | { status: "error"; message: string }
   | { status: "ready"; value: PortfolioSuccess };
 const buttonClass =
-  "min-h-11 rounded-lg border border-border-tertiary px-4 py-2 text-sm font-semibold text-text-primary hover:bg-bg-tertiary disabled:opacity-50";
+  "min-h-11 rounded-lg border border-border-tertiary px-4 py-2 text-sm font-semibold text-text-primary hover:bg-bg-tertiary aria-disabled:opacity-50";
 
 /** Mounted with the derived PDA as its key: edits/reset dispose all old observations. */
 export function HolderRewardsPublicBalances({ address }: { address: string }) {
@@ -86,8 +86,10 @@ export function HolderRewardsPublicBalances({ address }: { address: string }) {
       <button
         type="button"
         className={`${buttonClass} mt-4`}
-        disabled={state.status === "loading"}
-        onClick={() => void load()}
+        aria-disabled={state.status === "loading"}
+        onClick={() => {
+          if (state.status !== "loading") void load();
+        }}
       >
         {state.status === "loading"
           ? "Loading public balances…"

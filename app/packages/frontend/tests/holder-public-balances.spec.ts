@@ -126,6 +126,34 @@ test("explicit public read uses derived PDA, exact quantities, slots and no cred
   expect(unexpected).toEqual([]);
 });
 
+test("keyboard focus survives the pending public-balances read", async ({
+  page,
+}) => {
+  let calls = 0;
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/api/portfolio?*", async (route) => {
+    calls++;
+    await gate;
+    await route.fulfill({ json: payload() });
+  });
+  await derive(page);
+  const button = page.getByTestId("holder-public-balances").getByRole("button");
+  await button.focus();
+  await page.keyboard.press("Enter");
+  await expect(
+    page.getByTestId("holder-public-balances").getByRole("status"),
+  ).toBeVisible();
+  await expect(button).toBeFocused();
+  await page.keyboard.press("Enter");
+  expect(calls).toBe(1);
+  release();
+  await expect(page.getByTestId("holder-public-balances-result")).toBeVisible();
+  await expect(button).toBeFocused();
+});
+
 test("RPC rate limit/error hides provider detail; retry and refresh use a fresh observation", async ({
   page,
 }) => {
