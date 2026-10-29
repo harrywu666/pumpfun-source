@@ -22,15 +22,15 @@ def known_instruction_names(name):
     return tuple(sorted(names, key=len, reverse=True))
 
 
-def program_names():
+def program_names(root=ROOT):
     """Use the archived mapping when present, otherwise the captured programs."""
-    path = ROOT / 'repro/programs.json'
+    path = root / 'repro/programs.json'
     if path.is_file():
         return json.loads(path.read_text())
     order = ('pump', 'pump_amm', 'pump_fees', 'mayhem')
     return [
         name for name in order
-        if (ROOT / 'evidence/original' / name / 'deployed.so').is_file()
+        if (root / 'evidence/original' / name / 'deployed.so').is_file()
     ]
 
 

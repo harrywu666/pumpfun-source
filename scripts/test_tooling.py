@@ -72,4 +72,35 @@ class InstructionLogNameTests(unittest.TestCase):
         self.assertIn('InitializeGlobalParams', names)
 
 
+class SbpfInventoryInputTests(unittest.TestCase):
+    def test_inputs_fall_back_to_captured_originals(self):
+        import tempfile
+        from pathlib import Path
+        from sbpf_disassembly_inventory import program_inputs
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / 'evidence/original/pump').mkdir(parents=True)
+            (root / 'evidence/original/pump/deployed.so').write_bytes(b'ELF')
+            (root / 'evidence/original/no-binary').mkdir()
+            self.assertEqual(
+                program_inputs(root),
+                [('pump', root / 'evidence/original/pump/deployed.so')],
+            )
+
+    def test_selector_mapping_still_wins(self):
+        import tempfile
+        from pathlib import Path
+        from sbpf_disassembly_inventory import program_inputs
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / 'repro').mkdir()
+            (root / 'repro/programs.json').write_text('{"pump": "address"}')
+            (root / 'evidence/original/pump').mkdir(parents=True)
+            (root / 'evidence/original/pump/deployed.so').write_bytes(b'ELF')
+            self.assertEqual(
+                program_inputs(root)[0][1],
+                root / 'evidence/original/pump/deployed.so',
+            )
+
+
 if __name__=='__main__': unittest.main()
