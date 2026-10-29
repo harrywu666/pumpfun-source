@@ -95,6 +95,14 @@ test("legacy migration writes only the recorded cookie, preserving the date", ()
   assert.deepEqual(b.operations, [`cookie:${CLICKWRAP_COOKIE_VALUE}`]);
   assert.equal(b.items.get(CLICKWRAP_DATE_KEY), "old value");
 });
+test("blocked legacy migration cookie does not escape the browser boundary", () => {
+  const b = browser("", { [CLICKWRAP_LEGACY_KEY]: "true" });
+  b.environment.setCookie = () => {
+    throw Error("cookie blocked");
+  };
+  assert.doesNotThrow(() => migrateClickwrapLegacy(b.environment));
+  assert.deepEqual(b.operations, []);
+});
 test("already accepted cookies do not cause migration writes", () => {
   const b = browser("clickwrap_accepted=true", {
     [CLICKWRAP_LEGACY_KEY]: "true",
@@ -137,13 +145,20 @@ test("second storage failure preserves the first write and still notifies", () =
   assert.equal(b.items.get(CLICKWRAP_LEGACY_KEY), "true");
   assert.equal(b.operations.at(-1), "notify");
 });
-test("cookie write failure stops persistence and notification as in the captured handler", () => {
+test("cookie write failure falls back to legacy storage and notification", () => {
   const b = browser();
   b.environment.setCookie = () => {
+    b.operations.push("blocked:cookie");
     throw Error("cookie blocked");
   };
-  assert.throws(() => acceptClickwrap(b.environment), /cookie blocked/);
-  assert.deepEqual(b.operations, []);
+  acceptClickwrap(b.environment);
+  assert.deepEqual(b.operations, [
+    "blocked:cookie",
+    `storage:${CLICKWRAP_LEGACY_KEY}=true`,
+    `storage:${CLICKWRAP_DATE_KEY}=2026-10-28T12:00:00.000Z`,
+    "notify",
+  ]);
+  assert.equal(b.items.get(CLICKWRAP_LEGACY_KEY), "true");
 });
 test("date helper uses the archived revision floor, not a newly invented policy", () => {
   assert.equal(CAPTURED_TERMS_REVISION, "2026-10-17");

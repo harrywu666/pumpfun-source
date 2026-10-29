@@ -37,10 +37,21 @@ export interface ClickwrapEnvironment {
   notifyAccepted(): void;
 }
 function hasCookie(environment: ClickwrapEnvironment): boolean {
-  return environment
-    .getCookie()
-    .split("; ")
-    .includes(`${CLICKWRAP_COOKIE}=true`);
+  try {
+    return environment
+      .getCookie()
+      .split("; ")
+      .includes(`${CLICKWRAP_COOKIE}=true`);
+  } catch {
+    return false;
+  }
+}
+function writeCookie(environment: ClickwrapEnvironment): void {
+  try {
+    environment.setCookie(CLICKWRAP_COOKIE_VALUE);
+  } catch {
+    /* Storage may still be available as an acceptance fallback. */
+  }
 }
 function hasLegacyValue(environment: ClickwrapEnvironment): boolean {
   try {
@@ -63,11 +74,11 @@ export function migrateClickwrapLegacy(
   environment: ClickwrapEnvironment,
 ): void {
   if (!hasCookie(environment) && hasLegacyValue(environment))
-    environment.setCookie(CLICKWRAP_COOKIE_VALUE);
+    writeCookie(environment);
 }
 /** Continue, Escape and backdrop Dismiss all use this same captured transition. */
 export function acceptClickwrap(environment: ClickwrapEnvironment): void {
-  environment.setCookie(CLICKWRAP_COOKIE_VALUE);
+  writeCookie(environment);
   try {
     environment.setItem(CLICKWRAP_LEGACY_KEY, "true");
     environment.setItem(
