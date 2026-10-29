@@ -71,6 +71,10 @@ export function poolPda(
   baseMint: PublicKey,
   quoteMint: PublicKey,
 ): PublicKey {
+  if (!Number.isInteger(index) || index < 0 || index > 0xffff) {
+    throw new RangeError("pool index must be an integer between 0 and 65535");
+  }
+
   return pumpAmmPda([
     Buffer.from("pool"),
     new BN(index).toArrayLike(Buffer, "le", 2),
