@@ -316,31 +316,29 @@ export class VideoDraftSession {
       !preview.covers[index]
     )
       return;
-    this.cancelPending();
-    this.publish({ selected: index });
+    const hadPending = this.abortPending();
+    this.publish({
+      selected: index,
+      ...(hadPending && { pending: false, error: "" }),
+    });
     this.selected({
       video: preview.file,
       cover: preview.covers[index].file,
       owner: preview,
     });
   }
-  cancelPending() {
-    if (this.disposed || !this.pending) return;
+  private abortPending() {
+    if (!this.pending) return false;
     ++this.revision;
     this.pending.abort();
     this.pending = undefined;
-    this.publish({ pending: false, error: "" });
+    return true;
   }
-  detachCover() {
+  cancelPending() {
     if (this.disposed) return;
-    const hadPending = Boolean(this.pending);
-    if (hadPending) {
-      ++this.revision;
-      this.pending?.abort();
-      this.pending = undefined;
-    }
+    const hadPending = this.abortPending();
     if (hadPending || this.state.selected !== null)
-      this.publish({ selected: null, pending: false });
+      this.publish({ selected: null, pending: false, error: "" });
   }
   clear() {
     if (this.disposed) return;

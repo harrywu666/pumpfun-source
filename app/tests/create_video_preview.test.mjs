@@ -349,7 +349,7 @@ test("manual image selection cancels a pending replacement and detaches the comm
   const a = p.ready(0);
   await first;
   const pending = p.session.choose(file("new.mp4"));
-  p.session.detachCover();
+  p.session.cancelPending();
   assert.equal(p.pending[1].signal.aborted, true);
   const b = p.ready(1);
   await pending;

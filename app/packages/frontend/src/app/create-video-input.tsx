@@ -15,10 +15,7 @@ import {
 } from "./create-video-preview";
 import styles from "./create-video-input.module.css";
 
-export type VideoInputControl = {
-  cancelPending(): void;
-  detachCover(): void;
-};
+export type VideoInputControl = { cancelPending(): void };
 export default function CreateVideoInput({
   onSelect,
   onRemove,
@@ -30,7 +27,7 @@ export default function CreateVideoInput({
 }) {
   const [state, setState] = useState<VideoState>({
     preview: null,
-    selected: null,
+    selected: 0,
     pending: false,
     error: "",
   });
@@ -39,10 +36,7 @@ export default function CreateVideoInput({
   const session = useRef<VideoDraftSession | null>(null);
   useImperativeHandle(
     controlRef,
-    () => ({
-      cancelPending: () => session.current?.cancelPending(),
-      detachCover: () => session.current?.detachCover(),
-    }),
+    () => ({ cancelPending: () => session.current?.cancelPending() }),
     [],
   );
   useEffect(() => {
