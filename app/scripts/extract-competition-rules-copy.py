@@ -87,13 +87,23 @@ def generate(root):
     return json.dumps(extract(raw.decode("utf-8", errors="strict")), ensure_ascii=False, indent=2) + "\n"
 
 
+def output_path(root):
+    root = root.resolve(strict=True)
+    current = root
+    for part in Path(OUTPUT).parts:
+        current /= part
+        if current.is_symlink():
+            raise ValueError(f"Competition rules output path contains a symlink: {current.relative_to(root)}")
+    return current
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
     expected = generate(args.root)
-    output = args.root / OUTPUT
+    output = output_path(args.root)
     if args.check:
         if output.read_text(encoding='utf-8') != expected:
             raise SystemExit("Competition rules copy differs from retained HTML JSON")

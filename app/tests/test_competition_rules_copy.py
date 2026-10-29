@@ -29,6 +29,44 @@ class RulesCopy(unittest.TestCase):
             self.assertEqual((root / COPY.OUTPUT).read_bytes(), COPY.generate(ROOT).encode('utf-8'))
             subprocess.run(command + ['--check'], check=True, env=environment, capture_output=True)
 
+    def test_write_rejects_symlinked_output_and_preserves_target(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for file in ['evidence/web/manifest.json', COPY.SOURCE]:
+                destination = root / file
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / file, destination)
+            output = root / COPY.OUTPUT
+            output.parent.mkdir(parents=True)
+            target = root / 'outside-output'
+            target.write_text('preserve me', encoding='utf-8')
+            output.symlink_to(target)
+            command = [sys.executable, str(ROOT / 'scripts/extract-competition-rules-copy.py'), '--root', str(root)]
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('symlink', result.stderr.lower())
+            self.assertEqual(target.read_text(encoding='utf-8'), 'preserve me')
+
+    def test_write_rejects_symlinked_output_ancestor_and_preserves_target(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for file in ['evidence/web/manifest.json', COPY.SOURCE]:
+                destination = root / file
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(ROOT / file, destination)
+            output = root / COPY.OUTPUT
+            output.parent.parent.mkdir(parents=True)
+            outside = root / 'outside-directory'
+            outside.mkdir()
+            output.parent.symlink_to(outside, target_is_directory=True)
+            target = outside / output.name
+            target.write_text('preserve me', encoding='utf-8')
+            command = [sys.executable, str(ROOT / 'scripts/extract-competition-rules-copy.py'), '--root', str(root)]
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn('symlink', result.stderr.lower())
+            self.assertEqual(target.read_text(encoding='utf-8'), 'preserve me')
+
     def test_authenticated_output_matches(self):
         self.assertEqual(COPY.generate(ROOT), (ROOT / COPY.OUTPUT).read_text(encoding='utf-8'))
 
