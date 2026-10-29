@@ -95,7 +95,7 @@ function safeString(value: unknown, label: string, maximum: number): string {
   if (
     typeof value !== "string" ||
     value.trim().length === 0 ||
-    value.length > maximum ||
+    [...value].length > maximum ||
     CONTROL_CHARACTERS.test(value) ||
     !hasWellFormedUnicode(value)
   ) {

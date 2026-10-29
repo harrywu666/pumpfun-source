@@ -115,6 +115,25 @@ test("rejects unsafe strings, non-finite values and invented verification", () =
   );
 });
 
+test("counts string limits in Unicode code points", () => {
+  const thesis = "🚀".repeat(2_000);
+  const atLimit = coin();
+  atLimit.position.callout.thesis = thesis;
+  assert.equal(thesis.length, 4_000);
+  assert.equal([...thesis].length, 2_000);
+  assert.equal(
+    validateNativeFeedPage({ coins: [atLimit] }, "ranked").coins[0].thesis,
+    thesis,
+  );
+
+  const overLimit = coin();
+  overLimit.position.callout.thesis = "🚀".repeat(2_001);
+  assert.throws(
+    () => validateNativeFeedPage({ coins: [overLimit] }, "ranked"),
+    /bounded safe string/,
+  );
+});
+
 test("requires unavailable media and identity fields to remain null", () => {
   const external = coin();
   external.coinImage = "https://example.com/token.png" as never;
