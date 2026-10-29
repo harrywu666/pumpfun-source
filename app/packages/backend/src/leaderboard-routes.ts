@@ -64,10 +64,11 @@ export function registerLeaderboardRoutes(
    * Returns: 200, { entries, periodType, periodLabel, windowStartSec }.
    *
    * `period` is a required enum; a missing or unknown value is a 400 rather than
-   * a silent default. A missing `sort`, `positionsLimit` or `limit` defaults
-   * leniently, matching the other native routes, but a supplied pagination
-   * value must be a safe integer (see pageValue above). A repeated query key
-   * (including a percent-encoded one) fails closed with 501
+   * a silent default. A missing `sort` or pagination value defaults leniently,
+   * matching the other native routes, but a supplied `sort` must match the
+   * documented enum and a supplied pagination value must be a safe integer
+   * (see pageValue above). A repeated query key (including a percent-encoded
+   * one) fails closed with 501
    * DUPLICATE_QUERY_KEYS_UNIMPLEMENTED, like the other native reads, before
    * any value is interpreted.
    */
@@ -87,6 +88,14 @@ export function registerLeaderboardRoutes(
       }));
     }
 
+    const sort = qs.sort;
+    if (sort !== undefined && !isSort(sort)) {
+      return reply.code(400).send(errorBody(400, 'INVALID_SORT', {
+        allowed: ['realized', 'unrealized', 'combined'],
+        received: sort,
+      }));
+    }
+
     const limit = pageValue(qs.limit);
     if (limit === null) {
       return reply.code(400).send(errorBody(400, 'INVALID_LIMIT'));
@@ -98,8 +107,7 @@ export function registerLeaderboardRoutes(
 
     const board = store.getBoard({
       period: qs.period,
-      // An unknown sort falls back to the default measure instead of failing.
-      sort: isSort(qs.sort) ? qs.sort : undefined,
+      sort,
       positionsLimit,
       limit,
     });
