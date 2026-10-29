@@ -1,0 +1,310 @@
+{
+  "fields": [
+    {
+      "account_byte_interval": [
+        8,
+        12
+      ],
+      "field": "field_0",
+      "non_update_source_reads": [],
+      "on_chain": {
+        "distinct_values": [
+          8000
+        ],
+        "timeseries_sha256": "c0c3a58fe6a92ba7b4d442159c5e0210441e4cb02266d411c89c29542d09448c",
+        "value_count_observations": 20
+      },
+      "recovered_storage": "reset_prefix[0..4]",
+      "reset_behavior": "zeroed_by_reset_state",
+      "source_buckets": {
+        "other": 0,
+        "reset_transport": 0,
+        "static_consumer": 0,
+        "trade_handlers": 0,
+        "update_transport": 2
+      },
+      "source_reference_count": 2,
+      "source_references": [
+        {
+          "line": 129,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "        if let Some(v) = args.field_0 { state.reset_prefix[0..4].copy_from_slice(&v.to_le_bytes()); }"
+        },
+        {
+          "line": 148,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "            field_0: u32::from_le_bytes(state.reset_prefix[0..4].try_into().unwrap()),"
+        }
+      ],
+      "trade_handler_reads": []
+    },
+    {
+      "account_byte_interval": [
+        12,
+        16
+      ],
+      "field": "field_1",
+      "non_update_source_reads": [],
+      "on_chain": {
+        "distinct_values": [
+          0,
+          10,
+          50,
+          100
+        ],
+        "timeseries_sha256": "c0c3a58fe6a92ba7b4d442159c5e0210441e4cb02266d411c89c29542d09448c",
+        "value_count_observations": 20
+      },
+      "recovered_storage": "reset_prefix[4..8]",
+      "reset_behavior": "zeroed_by_reset_state",
+      "source_buckets": {
+        "other": 0,
+        "reset_transport": 0,
+        "static_consumer": 0,
+        "trade_handlers": 0,
+        "update_transport": 6
+      },
+      "source_reference_count": 6,
+      "source_references": [
+        {
+          "line": 130,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "        if let Some(v) = args.field_1 { state.reset_prefix[4..8].copy_from_slice(&v.to_le_bytes()); }"
+        },
+        {
+          "line": 149,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "            field_1: u32::from_le_bytes(state.reset_prefix[4..8].try_into().unwrap()),"
+        },
+        {
+          "line": 138,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "        if let Some(v) = args.field_10 { state.field_10 = v; }"
+        },
+        {
+          "line": 139,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "        for (value, offset) in [(args.field_11, 0), (args.field_12, 8), (args.field_13, 16)] {"
+        },
+        {
+          "line": 142,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "        if let Some(v) = args.field_14 { state.reset_stable_suffix[0..8].copy_from_slice(&v.to_le_bytes()); }"
+        },
+        {
+          "line": 143,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "        if let Some(v) = args.field_15 { state.reset_stable_suffix[8..16].copy_from_slice(&v.to_le_bytes()); }"
+        }
+      ],
+      "trade_handler_reads": []
+    },
+    {
+      "account_byte_interval": [
+        24,
+        32
+      ],
+      "field": "field_3",
+      "non_update_source_reads": [],
+      "on_chain": {
+        "distinct_values": [
+          20000000000
+        ],
+        "timeseries_sha256": "c0c3a58fe6a92ba7b4d442159c5e0210441e4cb02266d411c89c29542d09448c",
+        "value_count_observations": 20
+      },
+      "recovered_storage": "reset_prefix[16..24]",
+      "reset_behavior": "zeroed_by_reset_state",
+      "source_buckets": {
+        "other": 0,
+        "reset_transport": 0,
+        "static_consumer": 0,
+        "trade_handlers": 0,
+        "update_transport": 2
+      },
+      "source_reference_count": 2,
+      "source_references": [
+        {
+          "line": 151,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "            field_3: u64::from_le_bytes(state.reset_prefix[16..24].try_into().unwrap()),"
+        },
+        {
+          "line": 131,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "        for (value, offset) in [(args.field_2, 8), (args.field_3, 16), (args.field_4, 24), (args.field_5, 32)] {"
+        }
+      ],
+      "trade_handler_reads": []
+    },
+    {
+      "account_byte_interval": [
+        137,
+        138
+      ],
+      "bounded_static_consumer": {
+        "evidence": [
+          {
+            "line": 219,
+            "path": "programs/mayhem/src/lib.rs",
+            "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+            "text": "    // `duration_hours` is `global_params.reset_middle[0]` (handler read `[ctx+0x2c4]`)."
+          },
+          {
+            "line": 222,
+            "path": "programs/mayhem/src/lib.rs",
+            "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+            "text": "        let duration_hours = ctx.accounts.global_params.reset_middle[0] as i64;"
+          }
+        ],
+        "handler": "initialize_mayhem_state",
+        "interpretation_class": "mayhem_mode_duration_hours",
+        "interpretation_note": "Recovered source multiplies this byte by 3600 and adds Clock to set MayhemState.end_timestamp. On-chain configuration held value 24 at every captured version. This is a bounded class hypothesis only; the source identifier field_6 is unchanged.",
+        "stopped_lane": true
+      },
+      "field": "field_6",
+      "on_chain": {
+        "distinct_values": [
+          24
+        ],
+        "timeseries_sha256": "c0c3a58fe6a92ba7b4d442159c5e0210441e4cb02266d411c89c29542d09448c",
+        "value_count_observations": 20
+      },
+      "recovered_storage": "reset_middle[0]",
+      "reset_behavior": "zeroed_by_reset_state",
+      "source_buckets": {
+        "other": 0,
+        "reset_transport": 0,
+        "static_consumer": 2,
+        "trade_handlers": 0,
+        "update_transport": 2
+      },
+      "source_reference_count": 4,
+      "source_references": [
+        {
+          "line": 134,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "        if let Some(v) = args.field_6 { state.reset_middle[0] = v; }"
+        },
+        {
+          "line": 154,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "            field_6: state.reset_middle[0],"
+        },
+        {
+          "line": 219,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "    // `duration_hours` is `global_params.reset_middle[0]` (handler read `[ctx+0x2c4]`)."
+        },
+        {
+          "line": 222,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "        let duration_hours = ctx.accounts.global_params.reset_middle[0] as i64;"
+        }
+      ],
+      "trade_handler_reads": []
+    },
+    {
+      "account_byte_interval": [
+        166,
+        174
+      ],
+      "bounded_on_chain_class": {
+        "interpretation_class": "seconds_duration_near_one_day",
+        "interpretation_note": "Captured updates held 86400 then a deliberate single-field change to 86280. No non-update read exists in recovered programs/mayhem source. Parallels withdrawal-interval fields field_8 and field_15 in storage class, but no consumer is identified in source."
+      },
+      "field": "field_10",
+      "on_chain": {
+        "distinct_values": [
+          86280,
+          86400
+        ],
+        "timeseries_sha256": "c0c3a58fe6a92ba7b4d442159c5e0210441e4cb02266d411c89c29542d09448c",
+        "value_count_observations": 20
+      },
+      "recovered_storage": "field_10",
+      "reset_behavior": "preserved_by_reset_state",
+      "source_buckets": {
+        "other": 3,
+        "reset_transport": 0,
+        "static_consumer": 0,
+        "trade_handlers": 0,
+        "update_transport": 2
+      },
+      "source_reference_count": 5,
+      "source_references": [
+        {
+          "line": 138,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "        if let Some(v) = args.field_10 { state.field_10 = v; }"
+        },
+        {
+          "line": 158,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "            field_10: state.field_10,"
+        },
+        {
+          "line": 291,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "    pub field_10: u64, // 166"
+        },
+        {
+          "line": 328,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "    pub field_10: Option<u64>,"
+        },
+        {
+          "line": 352,
+          "path": "programs/mayhem/src/lib.rs",
+          "source_sha256": "14d82ec764595d549e9ba757f76bbdd001fa49c373adfffccbcc250c29978cb2",
+          "text": "    pub field_10: u64,"
+        }
+      ],
+      "trade_handler_reads": []
+    }
+  ],
+  "mayhem_source_root": "programs/mayhem/src",
+  "mayhem_source_sha256": "e407e6a1182bc004951d7a49c67ed599405d81bd633ba2b0e65eb98836d4460b",
+  "program_id": "MAyhSmzXzV1pTf7LsNkrNwkWKTo4ougAJ1PPg47MD4e",
+  "summary": {
+    "bounded_on_chain_class_fields": [
+      "field_10"
+    ],
+    "bounded_static_consumer_fields": [
+      "field_6"
+    ],
+    "handler_count_delta": 0,
+    "no_non_update_read_in_recovered_source": [
+      "field_0",
+      "field_1",
+      "field_3"
+    ],
+    "source_patch": null,
+    "unknown_roles_remaining": 4,
+    "whole_file_equal": false
+  },
+  "upstream_packages": [
+    "repro/mayhem/global-params-remaining-field-review",
+    "repro/mayhem/field-role-crosswalk",
+    "research/mayhem-globalparams-field-history",
+    "research/mayhem-history-wire"
+  ]
+}
