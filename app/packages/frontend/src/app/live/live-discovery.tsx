@@ -173,7 +173,7 @@ export default function LiveDiscovery({
   const query = searchParams.get("q") ?? "";
   const selectedId = searchParams.get("stream");
   const [draftQuery, setDraftQuery] = useState(query);
-  const [controlsReady, setControlsReady] = useState(false);
+  const [readySelectionId, setReadySelectionId] = useState<string | null>(null);
   const pendingClear = useRef(false);
   const cardRefs = useRef(new Map<string, HTMLButtonElement>());
   const searchRef = useRef<HTMLInputElement>(null);
@@ -235,7 +235,7 @@ export default function LiveDiscovery({
 
   useEffect(() => {
     if (selectedId === null) {
-      setControlsReady(true);
+      setReadySelectionId(null);
       return;
     }
     const closeOnEscape = (event: globalThis.KeyboardEvent) => {
@@ -258,8 +258,8 @@ export default function LiveDiscovery({
     };
     window.addEventListener("keydown", closeOnEscape);
     // A direct visit can paint its archived selection before passive effects.
-    // Expose the detail only after its advertised dismissal controls work.
-    setControlsReady(true);
+    // Key readiness to this selection so every newly opened detail waits too.
+    setReadySelectionId(selectedId);
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [closeSelection, selectedId]);
 
@@ -536,7 +536,7 @@ export default function LiveDiscovery({
         <PlaybackPanel
           selected={selected}
           invalidSelection={invalidSelection}
-          controlsReady={controlsReady}
+          controlsReady={readySelectionId === selectedId}
           onClose={closeSelection}
         />
       </div>

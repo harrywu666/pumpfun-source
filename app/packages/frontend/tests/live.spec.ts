@@ -350,7 +350,9 @@ test("selection dismisses on page changes and Escape has a visible fallback for 
   ).toBeFocused();
 });
 
-test("direct-visit details handle Escape as soon as they are exposed", async ({ page }) => {
+test("direct-visit details handle Escape as soon as they are exposed", async ({
+  page,
+}) => {
   await page.addInitScript(() => {
     const probe = window as Window & {
       firstDetailEscape?: { prevented: boolean };
@@ -363,9 +365,12 @@ test("direct-visit details handle Escape as soon as they are exposed", async ({ 
         !document.querySelector(
           '[data-testid="playback-unavailable"], [data-testid="invalid-stream-selection"]',
         )
-      ) return;
+      )
+        return;
       const event = new KeyboardEvent("keydown", {
-        key: "Escape", bubbles: true, cancelable: true,
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
       });
       probe.firstDetailEscape = { prevented: false };
       window.dispatchEvent(event);
@@ -378,13 +383,74 @@ test("direct-visit details handle Escape as soon as they are exposed", async ({ 
     const response = await page.goto(`/live?page=4&stream=${selection}`);
     await expect(page).toHaveURL(/\/live\?page=4$/);
     expect(await response?.text()).toContain("Loading archived details…");
-    expect(await page.evaluate(() => (window as Window & {
-      firstDetailEscape?: { prevented: boolean };
-    }).firstDetailEscape)).toEqual({ prevented: true });
+    expect(
+      await page.evaluate(
+        () =>
+          (
+            window as Window & {
+              firstDetailEscape?: { prevented: boolean };
+            }
+          ).firstDetailEscape,
+      ),
+    ).toEqual({ prevented: true });
     await expect(
       page.getByRole("searchbox", { name: "Search captured streams" }),
     ).toBeFocused();
   }
+});
+
+test("a newly selected detail handles Escape as soon as it is exposed", async ({
+  page,
+}) => {
+  await page.goto("/live");
+  await expect(
+    page.getByText("No archived stream selected", { exact: true }),
+  ).toBeVisible();
+  await page.evaluate(() => {
+    const probe = window as Window & {
+      firstNewDetailEscapePrevented?: boolean;
+    };
+    const observer = new MutationObserver(() => {
+      if (
+        probe.firstNewDetailEscapePrevented !== undefined ||
+        !document.querySelector('[data-testid="playback-unavailable"]')
+      ) {
+        return;
+      }
+      const event = new KeyboardEvent("keydown", {
+        key: "Escape",
+        bubbles: true,
+        cancelable: true,
+      });
+      window.dispatchEvent(event);
+      probe.firstNewDetailEscapePrevented = event.defaultPrevented;
+    });
+    observer.observe(document, {
+      attributes: true,
+      attributeFilter: ["data-testid"],
+      childList: true,
+      subtree: true,
+    });
+  });
+
+  const inspect = page.getByRole("button", {
+    name: "Inspect archived stream M $M",
+  });
+  await inspect.click();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (
+            window as Window & {
+              firstNewDetailEscapePrevented?: boolean;
+            }
+          ).firstNewDetailEscapePrevented,
+      ),
+    )
+    .toBe(true);
+  await expect(page).toHaveURL(/\/live$/);
+  await expect(inspect).toBeFocused();
 });
 
 test("Escape belongs to an open modal before the underlying nonmodal stream detail", async ({
