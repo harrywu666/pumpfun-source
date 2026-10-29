@@ -411,6 +411,84 @@ test("reset invalidates old reads and writes; stale completion cannot populate a
   assert.equal(second.getSnapshot().settingsMutation.status, "idle");
 });
 
+test("reset from a successful settings read publication returns superseded", async () => {
+  const { controller } = setup();
+  let reset = false;
+  controller.subscribe(() => {
+    if (!reset && controller.getSnapshot().settings.status === "ready") {
+      reset = true;
+      controller.reset();
+    }
+  });
+  assert.deepEqual(await controller.loadSettings(), {
+    status: "ignored",
+    reason: "superseded",
+  });
+  assert.equal(controller.getSnapshot().settings.data, null);
+});
+
+test("reset from a successful settings write publication returns superseded", async () => {
+  const { controller } = setup();
+  await controller.loadSettings();
+  let reset = false;
+  controller.subscribe(() => {
+    if (
+      !reset &&
+      controller.getSnapshot().settings.status === "ready" &&
+      controller.getSnapshot().settingsMutation.status === "idle"
+    ) {
+      reset = true;
+      controller.reset();
+    }
+  });
+  assert.deepEqual(
+    await controller.updateSettings({
+      chat: { allowGroupNotifications: true },
+    }),
+    { status: "ignored", reason: "superseded" },
+  );
+  assert.equal(controller.getSnapshot().settings.data, null);
+});
+
+test("reset from a successful topic read publication returns superseded", async () => {
+  const { controller } = setup();
+  let reset = false;
+  controller.subscribe(() => {
+    if (!reset && controller.getSnapshot().topics.status === "ready") {
+      reset = true;
+      controller.reset();
+    }
+  });
+  assert.deepEqual(await controller.loadTopics(), {
+    status: "ignored",
+    reason: "superseded",
+  });
+  assert.equal(controller.getSnapshot().topics.data, null);
+});
+
+test("reset from a successful topic refresh publication returns superseded", async () => {
+  const { controller } = setup();
+  await controller.loadTopics();
+  let reset = false;
+  controller.subscribe(() => {
+    const state = controller.getSnapshot();
+    if (
+      !reset &&
+      state.topics.status === "ready" &&
+      !state.topics.stale &&
+      state.topicMutation.status === "idle"
+    ) {
+      reset = true;
+      controller.reset();
+    }
+  });
+  assert.deepEqual(await controller.setTopic("trending", "subscribe"), {
+    status: "ignored",
+    reason: "superseded",
+  });
+  assert.equal(controller.getSnapshot().topics.data, null);
+});
+
 test("dispose drops subscribers and late topic completions without refresh or resurrection", async () => {
   const waiting = deferred<unknown>();
   const { controller, calls } = setup({ mutateTopic: () => waiting.promise });

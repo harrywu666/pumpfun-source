@@ -111,6 +111,8 @@ export function createNotificationController(
         ? ignored("unavailable")
         : null;
   const current = (started: number) => !disposed && generation === started;
+  const completion = (started: number): ActionResult =>
+    current(started) ? { status: "completed" } : ignored("superseded");
 
   async function loadSettings(): Promise<ActionResult> {
     const blocked = guard();
@@ -150,7 +152,7 @@ export function createNotificationController(
         error: null,
       }),
     });
-    return { status: "completed" };
+    return completion(started);
   }
   function settingsReadFailure(
     started: number,
@@ -210,7 +212,7 @@ export function createNotificationController(
       }),
       settingsMutation: idleMutation(),
     });
-    return { status: "completed" };
+    return completion(started);
   }
 
   async function loadTopics(): Promise<ActionResult> {
@@ -254,7 +256,7 @@ export function createNotificationController(
         error: null,
       }),
     });
-    return { status: "completed" };
+    return completion(started);
   }
   function topicsReadFailure(
     started: number,
