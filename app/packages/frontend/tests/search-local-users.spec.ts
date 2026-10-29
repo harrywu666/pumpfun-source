@@ -64,6 +64,38 @@ test("honors two UTF-16 units and the captured 500ms debounce", async ({
   );
 });
 
+test("uses 200 Unicode code points as the local search ceiling", async ({
+  page,
+}) => {
+  const reads: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/api/local-users/search?"))
+      reads.push(request.url());
+  });
+  await page.goto("/");
+  await openShellSearch(page);
+  await page.clock.install({ time: new Date("2026-01-01T00:00:00Z") });
+  await page.clock.pauseAt(new Date("2026-01-01T00:00:01Z"));
+  const dialog = page.getByRole("dialog", {
+    name: "Search for coins and users",
+  });
+  const input = dialog.getByRole("searchbox");
+  const atLimit = "😀".repeat(200);
+
+  await input.fill(atLimit);
+  await page.clock.runFor(500);
+  await expect.poll(() => reads.length).toBe(1);
+  expect(new URL(reads[0]).searchParams.get("q")).toBe(atLimit);
+  await expect(dialog).toContainText("No matching local profiles.");
+
+  await input.fill(`${atLimit}😀`);
+  await page.clock.runFor(1000);
+  expect(reads).toHaveLength(1);
+  await expect(dialog).toContainText(
+    "Local profile search supports up to 200 characters.",
+  );
+});
+
 test("clears obsolete rows immediately and ignores an old response that ignores abort", async ({
   page,
 }) => {

@@ -10,6 +10,7 @@ import {
   isLocalUserSearchRows,
   type LocalUserSearchRow,
 } from "@/lib/local-user-search-data";
+import { isLocalUserSearchTermTooLong } from "@/lib/local-user-search-limits";
 import styles from "./local-user-search.module.css";
 
 type State = {
@@ -66,7 +67,8 @@ export function LocalUserSearch({
       { searchTerm: query, debouncedTerm: term, enabled: open },
       () => readLocalUsers,
     );
-    if (!snapshot.queryOptions.enabled || term.length > 200) return;
+    if (!snapshot.queryOptions.enabled || isLocalUserSearchTermTooLong(term))
+      return;
     const controller = new AbortController();
     let active = true;
     setState({ term, status: "loading", rows: [] });
@@ -106,7 +108,7 @@ export function LocalUserSearch({
         <p role="status">
           Enter at least two characters to search local profiles.
         </p>
-      ) : term.length > 200 ? (
+      ) : isLocalUserSearchTermTooLong(term) ? (
         <p role="status">Local profile search supports up to 200 characters.</p>
       ) : !current || state.status === "loading" ? (
         <p role="status">Searching local profiles…</p>

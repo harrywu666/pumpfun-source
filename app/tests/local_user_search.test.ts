@@ -84,6 +84,27 @@ test("local query boundaries fail before reading files", async () => {
   );
 });
 
+test("local query maximum counts Unicode code points", async () => {
+  const atLimit = "😀".repeat(200);
+  const accepted = await localUserSearchResponse(
+    request(`q=${encodeURIComponent(atLimit)}`),
+    readSeed,
+  );
+  assert.equal(accepted.status, 200);
+  assert.deepEqual(await accepted.json(), []);
+
+  let reads = 0;
+  const overLimit = await localUserSearchResponse(
+    request(`q=${encodeURIComponent(`${atLimit}x`)}`),
+    async () => {
+      reads++;
+      return Buffer.from("[]");
+    },
+  );
+  assert.equal(overLimit.status, 400);
+  assert.equal(reads, 0);
+});
+
 test("missing or changed users and posts fail without exposing paths or fallback records", async () => {
   for (const name of ["users", "posts"] as const) {
     const missing = await localUserSearchResponse(

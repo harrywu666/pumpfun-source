@@ -11,6 +11,7 @@ import {
   validateLocalProfiles,
 } from "../components/profile/profile-data";
 import type { LocalUserSearchRow } from "./local-user-search-data";
+import { isLocalUserSearchTermTooLong } from "./local-user-search-limits";
 
 type SeedReader = (name: "posts" | "users") => Promise<Uint8Array>;
 const readSeed: SeedReader = (name) =>
@@ -31,7 +32,7 @@ export async function localUserSearchResponse(
     [...url.searchParams.keys()].some((key) => key !== "q") ||
     url.searchParams.getAll("q").length !== 1 ||
     term.length < 2 ||
-    term.length > 200
+    isLocalUserSearchTermTooLong(term)
   ) {
     return Response.json(
       { error: "LOCAL_QUERY_INVALID" },

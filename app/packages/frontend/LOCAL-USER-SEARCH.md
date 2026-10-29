@@ -56,24 +56,27 @@ viewer resolution, ownership, preference write or wallet signature is involved.
 Same-origin request credentials do not establish authentication; the local route
 ignores cookies and reads only the fixed public synthetic files.
 
-Local query admission requires exactly one q, no unknown keys, 2..200 trimmed
-UTF-16 code units and no other request parameters. Invalid queries return a local
-400 before reading files; missing, changed or invalid seeds produce a bounded
-503 without leaking filesystem paths. These statuses are local policy. Successful
-and failed responses are no-store and identify synthetic-seed-play. No production
-fallback is configured. A valid unmatched term produces an explicit empty state.
+Local query admission requires exactly one q, no unknown keys, at least two
+trimmed UTF-16 code units as in the captured query, and no more than 200 Unicode
+code points, plus no other request parameters. The local ceiling counts visible
+astral characters instead of their two UTF-16 units per code point. Invalid
+queries return a local 400 before reading files; missing, changed or invalid
+seeds produce a bounded 503 without leaking filesystem paths. These statuses are
+local policy. Successful and failed responses are no-store and identify
+synthetic-seed-play. No production fallback is configured. A valid unmatched
+term produces an explicit empty state.
 
 ## Validation and limits
 
 - Baseline: the new Alice-result/navigation case fails because no result link exists.
-- Six host tests pass for seed reads, preserved empty labels, five exact identities,
+- Seven host tests pass for seed reads, preserved empty labels, five exact identities,
   served ordering, empty matches, query bounds, changed/missing posts or users,
   safe projection and source snapshot/selection behavior.
 - The unchanged original adapter's ten tests and AST source verification pass.
-- Thirteen browser cases pass: five new cases for result navigation, 499/500 ms
-  timing and UTF-16 admission, stale response rejection, close cancellation,
-  unavailable reads and Enter fallback; eight existing Escape, shortcut,
-  keyboard, history and delayed-Clear cases.
+- Fourteen browser cases pass: six new cases for result navigation, 499/500 ms
+  timing and UTF-16 admission, the Unicode code-point ceiling, stale response
+  rejection, close cancellation, unavailable reads and Enter fallback; eight
+  existing Escape, shortcut, keyboard, history and delayed-Clear cases.
 - Local mobile/desktop screenshots are under `visual/local-user-search-20261029/`.
   No original screenshot with equivalent query/data is available. The inline list
   layout, disclosure and error copy are local design; visual parity and complete
