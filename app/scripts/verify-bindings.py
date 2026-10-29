@@ -33,10 +33,21 @@ def require(condition, message):
         raise ValueError(message)
 
 
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        require(key not in result, f'Duplicate JSON key: {key}')
+        result[key] = value
+    return result
+
+
 def read_json(root, path):
     target = root / path
     require(target.is_file(), f'Missing required file: {path}')
-    return json.loads(target.read_text(encoding='utf-8'))
+    return json.loads(
+        target.read_text(encoding='utf-8'),
+        object_pairs_hook=unique_object,
+    )
 
 
 def utf16_length(text):
