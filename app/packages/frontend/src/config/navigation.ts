@@ -140,7 +140,11 @@ export const RESOURCE_LINKS: readonly MenuEntry[] = [
     href: "https://t.me/pump_tech_updates",
     external: true,
   },
-  { label: "Wallet sign-in changes", href: "/docs/wallet-login-changes" },
+  {
+    label: "Wallet sign-in changes",
+    href: "https://pump.fun/docs/wallet-login-changes",
+    external: true,
+  },
 ];
 
 export const LEGAL_LINKS: readonly MenuEntry[] = [
@@ -148,13 +152,34 @@ export const LEGAL_LINKS: readonly MenuEntry[] = [
   { label: "Terms of service", href: "/docs/terms-and-conditions" },
   {
     label: "Tokenized agent disclaimer",
-    href: "/docs/tokenized-agent-disclaimer",
+    href: "https://pump.fun/docs/tokenized-agent-disclaimer",
+    external: true,
   },
-  { label: "Livestream policy", href: "/docs/livestream-moderation-policy" },
-  { label: "DMCA policy", href: "/docs/dmca-policy" },
-  { label: "Trademark guidelines", href: "/docs/trademark-guidelines" },
-  { label: "Charity coins", href: "/docs/charitycoins" },
-  { label: "Go.fun terms", href: "/docs/go-fun-terms" },
+  {
+    label: "Livestream policy",
+    href: "https://pump.fun/docs/livestream-moderation-policy",
+    external: true,
+  },
+  {
+    label: "DMCA policy",
+    href: "https://pump.fun/docs/dmca-policy",
+    external: true,
+  },
+  {
+    label: "Trademark guidelines",
+    href: "https://pump.fun/docs/trademark-guidelines",
+    external: true,
+  },
+  {
+    label: "Charity coins",
+    href: "https://pump.fun/docs/charitycoins",
+    external: true,
+  },
+  {
+    label: "Go.fun terms",
+    href: "https://pump.fun/docs/go-fun-terms",
+    external: true,
+  },
 ];
 
 export const BLOG_URL = "https://medium.com/@pumpdotfun_";
