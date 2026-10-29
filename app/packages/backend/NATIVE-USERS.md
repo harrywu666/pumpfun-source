@@ -19,7 +19,8 @@ matches. That behavior is unchanged and covered by a regression test.
 ## Source layout
 
 - `src/users-store.ts` - `UserStore`, a deterministic in-memory store with O(1)
-  address / userId / username indexes, search filtering, and verified tracking.
+  address / userId / canonical-wallet / username indexes, search filtering, and
+  verified tracking.
   `defaultStore` is the singleton used by the app.
 - `src/users-seed.json` - five seed rows, all satisfying the contract's required keys.
 - `src/users-routes.ts` - the seven native Fastify handlers.
@@ -120,6 +121,10 @@ any of them is a contract decision, not a bug fix.
 20. **Verified identification**: A user is verified if their address or userId is in the store's
     verified set. Default seed marks Alice (`user-001` / `7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU`)
     as verified.
+21. **Verified wallet aliases**: `POST /profiles/verified` resolves the declared EVM wallet format
+    through each row's `canonical_evm_wallet` (and admits `canonical_svm_wallet`) before applying
+    verification. Every alias of the resolved profile shares its verified state. Matching is exact;
+    no EVM case folding or broader address normalization is prescribed by the captured contract.
 
 ## Not implemented
 

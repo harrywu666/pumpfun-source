@@ -65,6 +65,16 @@ export interface UserSearchOptions {
   includeLabelledWallets?: boolean;
 }
 
+/** Every non-empty identifier that may resolve to the same user profile. */
+function identityValues(user: User): string[] {
+  return [...new Set([
+    user.address,
+    user.userId,
+    user.canonical_svm_wallet,
+    user.canonical_evm_wallet,
+  ].filter((id): id is string => typeof id === 'string' && id !== ''))];
+}
+
 /** Validated seed users. */
 const users: User[] = seedData as User[];
 
@@ -145,13 +155,14 @@ export class UserStore {
   private byAddress: Map<string, User>;
   private byUserId: Map<string, User>;
   private byUsername: Map<string, User>;
+  private byCanonicalWallet: Map<string, User>;
   private verifiedUsers: Set<string>;
 
   constructor(seed?: User[], verifiedIds?: string[] | Set<string>) {
     this.users = structuredClone(seed ?? users);
     const identities = new Set<string>();
     for (const user of this.users) {
-      for (const id of new Set([user.address, user.userId].filter((id): id is string => typeof id === 'string' && id !== ''))) {
+      for (const id of identityValues(user)) {
         if (identities.has(id)) throw new TypeError('Duplicate or ambiguous user identity');
         identities.add(id);
       }
@@ -162,6 +173,13 @@ export class UserStore {
     );
     this.byUsername = new Map(
       this.users.filter(u => u.username !== null && u.username !== '').map(u => [u.username!.toLowerCase(), u])
+    );
+    this.byCanonicalWallet = new Map(
+      this.users.flatMap(user => [...new Set([
+        user.canonical_svm_wallet,
+        user.canonical_evm_wallet,
+      ].filter((id): id is string => typeof id === 'string' && id !== ''))]
+        .map(id => [id, user] as const))
     );
     if (verifiedIds) {
       this.verifiedUsers = new Set(verifiedIds);
@@ -238,15 +256,11 @@ export class UserStore {
     return structuredClone(result.slice(offset, offset + limit));
   }
 
-  /** Check whether a user is verified (by address or userId). Returns false for unknown ids. */
+  /** Check whether a user is verified from any identity alias. Returns false for unknown ids. */
   isVerified(id: string): boolean {
-    const user = this.getById(id);
+    const user = this.getById(id) ?? this.byCanonicalWallet.get(id);
     if (!user) return false;
-    return (
-      this.verifiedUsers.has(id) ||
-      this.verifiedUsers.has(user.address) ||
-      (user.userId !== undefined && user.userId !== '' && this.verifiedUsers.has(user.userId))
-    );
+    return identityValues(user).some(identity => this.verifiedUsers.has(identity));
   }
 
   /** Batch-check verified status for a list of ids. Returns record mapping id to boolean. */
