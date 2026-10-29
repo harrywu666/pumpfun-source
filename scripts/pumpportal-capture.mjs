@@ -111,11 +111,18 @@ const shutdownTimer = setTimeout(() => {
   ws.close();
 }, DURATION_S * 1000);
 
-process.on("SIGINT", () => {
+let shuttingDown = false;
+
+function shutdown() {
+  if (shuttingDown) return;
+  shuttingDown = true;
   clearTimeout(shutdownTimer);
   console.log(`\n[capture] interrupted, closing...`);
   ws.close();
-});
+}
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
 
 // --------------- Finalise ---------------
 
