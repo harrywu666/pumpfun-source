@@ -215,6 +215,28 @@ test("detail is keyboard dismissible, restores focus and exposes no authenticate
   await expect(inspect).toBeFocused();
 });
 
+test("task deep link locates a bounty outside the first page in the API and page", async ({
+  page,
+  request,
+}) => {
+  const task = "bb35a0d7-ac6d-43ab-b4d0-68a5518d57ec";
+  const apiResponse = await request.get(`/api/go-bounties?task=${task}`);
+  expect(apiResponse.status()).toBe(200);
+  const result = await apiResponse.json();
+  expect(result).toMatchObject({ offset: 24, total: 25 });
+  expect(result.items).toEqual(
+    expect.arrayContaining([expect.objectContaining({ taskId: task })]),
+  );
+
+  await page.goto(`/go?task=${task}`);
+  await expect(page).toHaveURL(new RegExp(`task=${task}$`));
+  await expect(page.getByTestId("go-bounty-detail")).toContainText(
+    "EKOS Community Content Challenge",
+  );
+  await expect(page.getByText("Archived bounty not found")).toHaveCount(0);
+  await expect(page.getByTestId("go-bounty-card")).toHaveCount(1);
+});
+
 test("all required viewports avoid document overflow and preserve shell navigation", async ({
   page,
 }) => {

@@ -619,13 +619,18 @@ export function queryArchivedBounties(
   const rawOffset = query.cursor
     ? Number.parseInt(query.cursor.slice(1), 10)
     : 0;
+  const taskIndex = query.task
+    ? sorted.findIndex((bounty) => bounty.taskId === query.task)
+    : -1;
   const offset =
-    Number.isSafeInteger(rawOffset) &&
-    rawOffset >= 0 &&
-    rawOffset % GO_PAGE_SIZE === 0 &&
-    rawOffset < Math.max(sorted.length, 1)
-      ? rawOffset
-      : 0;
+    taskIndex >= 0
+      ? Math.floor(taskIndex / GO_PAGE_SIZE) * GO_PAGE_SIZE
+      : Number.isSafeInteger(rawOffset) &&
+          rawOffset >= 0 &&
+          rawOffset % GO_PAGE_SIZE === 0 &&
+          rawOffset < Math.max(sorted.length, 1)
+        ? rawOffset
+        : 0;
   const nextOffset = offset + GO_PAGE_SIZE;
   const previousOffset = Math.max(0, offset - GO_PAGE_SIZE);
 

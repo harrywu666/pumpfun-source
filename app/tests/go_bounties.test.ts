@@ -132,6 +132,31 @@ test("search, validated sorting and cursor pagination are deterministic", async 
   );
 });
 
+test("a task deep link locates its archived bounty outside the first page", async () => {
+  const { value } = await snapshot();
+  const base = {
+    q: "",
+    status: "ALL" as const,
+    sort: "createdAt" as const,
+    order: "desc" as const,
+  };
+  const first = queryArchivedBounties(value, base);
+  const second = queryArchivedBounties(value, {
+    ...base,
+    cursor: first.nextCursor,
+  });
+  const target = second.items[0];
+
+  const located = queryArchivedBounties(value, {
+    ...base,
+    task: target.taskId,
+  });
+
+  assert.equal(located.offset, second.offset);
+  assert.equal(located.total, value.bounties.length);
+  assert.ok(located.items.some((item) => item.taskId === target.taskId));
+});
+
 test("atomic rewards never use floating point and missing values stay unavailable", () => {
   assert.equal(
     formatAtomicAmount("900719925474099312345678", 9),
