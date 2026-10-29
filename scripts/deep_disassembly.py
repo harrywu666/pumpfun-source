@@ -196,6 +196,7 @@ def extract_rodata_strings(elf):
     if not rodata:
         return {}
     ro_start = rodata[4]
+    ro_address = rodata[3]
     ro_size = rodata[5]
     strings = {}
     current = []
@@ -204,7 +205,7 @@ def extract_rodata_strings(elf):
         byte = elf.b[ro_start + i]
         if 32 <= byte < 127:
             if current_start is None:
-                current_start = ro_start + i
+                current_start = ro_address + i
             current.append(chr(byte))
         else:
             if len(current) >= 4:
