@@ -261,6 +261,12 @@ export class CompetitionStore {
             if (!Number.isFinite(member[key])) throw new TypeError(`Competition entry member ${key} must be finite`);
           }
         }
+        // Highlight attribution is defined against the entry's snapshot
+        // roster. A token row for any other user would expose a "member"
+        // who was never counted in memberCount or the roster detail.
+        const rosterIds = comp.kind === 'group'
+          ? new Set((entry.members ?? []).map(member => member.userId))
+          : new Set([entry.participantId]);
         for (const token of entry.highlightTokens ?? []) {
           for (const key of ['pnlUsd', 'realizedPnlUsd', 'unrealizedPnlUsd',
             'buySpendUsd'] as const) {
@@ -270,6 +276,9 @@ export class CompetitionStore {
             for (const key of ['pnlUsd', 'realizedPnlUsd', 'unrealizedPnlUsd',
               'buySpendUsd'] as const) {
               if (!Number.isFinite(member[key])) throw new TypeError(`Competition highlight member ${key} must be finite`);
+            }
+            if (!rosterIds.has(member.userId)) {
+              throw new TypeError('Competition highlight member must belong to the entry roster');
             }
           }
         }
