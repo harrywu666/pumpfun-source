@@ -69,6 +69,7 @@ def analyze_data_layout(elf):
             continue
         sec = elf.secs[section_name]
         start = sec[4]
+        address_start = sec[3]
         size = sec[5]
         data = elf.b[start:start + size]
 
@@ -85,7 +86,7 @@ def analyze_data_layout(elf):
                 if len(current) >= 4:
                     strings.append({
                         "offset": current_start,
-                        "address": hex(start + current_start),
+                        "address": hex(address_start + current_start),
                         "length": len(current),
                         "value": "".join(current)[:200],
                     })
@@ -118,14 +119,14 @@ def analyze_data_layout(elf):
             if elf.lo <= val < elf.hi and val % 8 == 0:
                 pointers.append({
                     "offset": i,
-                    "address": hex(start + i),
+                    "address": hex(address_start + i),
                     "points_to": hex(val),
                     "in_text": True,
                 })
-            elif start <= val < start + size:
+            elif address_start <= val < address_start + size:
                 pointers.append({
                     "offset": i,
-                    "address": hex(start + i),
+                    "address": hex(address_start + i),
                     "points_to": hex(val),
                     "in_text": False,
                     "self_reference": True,
