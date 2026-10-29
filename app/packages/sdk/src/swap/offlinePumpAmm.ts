@@ -1320,9 +1320,6 @@ export class PumpAmmSdk {
     } = collectCoinCreatorFeeSolanaState;
 
     const actualPayer = payer ?? coinCreator;
-    const shouldCloseCoinCreatorATA =
-      quoteMint.equals(NATIVE_MINT) && coinCreator.equals(actualPayer);
-
     const coinCreatorTokenAccountExists = this.accountExists(
       coinCreatorTokenAccountInfo,
       quoteTokenProgram,
@@ -1335,6 +1332,10 @@ export class PumpAmmSdk {
         quoteTokenProgram,
       ),
     );
+    const shouldCloseCoinCreatorATA =
+      quoteMint.equals(NATIVE_MINT) &&
+      coinCreator.equals(actualPayer) &&
+      coinCreatorTokenAccountIsAta;
     if (!coinCreatorTokenAccountExists && !coinCreatorTokenAccountIsAta) {
       throw new Error(
         `coinCreatorTokenAccount=${coinCreatorTokenAccount.toString()} does not exist; only the creator's ATA is created automatically`,
