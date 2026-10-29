@@ -82,9 +82,10 @@ is a contract decision, not a bug fix.
     returns `400 {"error":"INVALID_CURSOR"}` rather than silently defaulting to page 1.
 28. **Reply and quote limit clamping**: When `limit` is omitted, it defaults to 50. Values above 200
     clamp to 200. Non-positive or zero values clamp to 1.
-29. **Liker and reposter offset pagination**: `offset` defaults to 0 (clamps to min 0, max 10000).
-    `limit` defaults to 50 (clamps to min 1, max 200). `hasMore` is `true` if `offset + limit < total`,
-    `false` otherwise.
+29. **Liker and reposter offset pagination**: `offset` defaults to 0 (negative values clamp to 0;
+    values above the contract maximum 10000 return 400 rather than replaying the capped page).
+    `limit` defaults to 50 (clamps to min 1, max 200). `hasMore` is `true` only when rows remain and
+    the next computed offset is still requestable, `false` otherwise.
 30. **One-level embeds without recursion**: Posts embed immediate parent (`parent`), quoted post
     (`quoted`), and reposted post (`reposted`). To avoid recursive cycles and conform strictly to
     `Shared_47a8d5353d95`, embeds have their own `parent: null`, `quoted: null`, and `reposted: null`.

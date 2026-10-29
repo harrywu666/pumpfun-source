@@ -9,6 +9,7 @@ import { PostStore, defaultPostStore } from './posts-store.js';
 import { sendSynthetic, errorBody, rejectDuplicateQueryKeys } from './users-routes.js';
 
 const POST_ID = /^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$/;
+const MAX_ENGAGEMENT_OFFSET = 10000;
 
 /**
  * Pagination on the posts sub-resources is declared as integers in
@@ -30,13 +31,26 @@ function pageValue(
   fallback: number,
   minimum: number,
   maximum: number,
+  clampMaximum = true,
 ): number | null {
   const raw = qs[field];
   if (raw === undefined) return fallback;
   if (raw.trim() === '') return null;
   const parsed = Number(raw);
   if (!Number.isSafeInteger(parsed)) return null;
+  if (parsed > maximum && !clampMaximum) return null;
   return Math.min(maximum, Math.max(minimum, parsed));
+}
+
+function engagementPage<T extends { hasMore: boolean }>(
+  result: T,
+  offset: number,
+  limit: number,
+): T {
+  // The route cannot accept another offset above the contract ceiling. Do not
+  // advertise a continuation that would only replay the capped boundary page.
+  if (!result.hasMore || offset + limit <= MAX_ENGAGEMENT_OFFSET) return result;
+  return { ...result, hasMore: false };
 }
 
 export function registerPostRoutes(app: FastifyInstance, store: PostStore = defaultPostStore): void {
@@ -127,7 +141,7 @@ export function registerPostRoutes(app: FastifyInstance, store: PostStore = defa
       return reply.code(400).send(errorBody(400, 'INVALID_LIMIT'));
     }
 
-    const offset = pageValue(qs, 'offset', 0, 0, 10000);
+    const offset = pageValue(qs, 'offset', 0, 0, MAX_ENGAGEMENT_OFFSET, false);
     if (offset === null) {
       return reply.code(400).send(errorBody(400, 'INVALID_OFFSET'));
     }
@@ -136,7 +150,7 @@ export function registerPostRoutes(app: FastifyInstance, store: PostStore = defa
     if (!result) {
       return reply.code(404).send(errorBody(404, 'NOT_FOUND'));
     }
-    return sendSynthetic(reply, 200, result);
+    return sendSynthetic(reply, 200, engagementPage(result, offset, limit));
   });
 
   /**
@@ -185,7 +199,7 @@ export function registerPostRoutes(app: FastifyInstance, store: PostStore = defa
       return reply.code(400).send(errorBody(400, 'INVALID_LIMIT'));
     }
 
-    const offset = pageValue(qs, 'offset', 0, 0, 10000);
+    const offset = pageValue(qs, 'offset', 0, 0, MAX_ENGAGEMENT_OFFSET, false);
     if (offset === null) {
       return reply.code(400).send(errorBody(400, 'INVALID_OFFSET'));
     }
@@ -194,7 +208,7 @@ export function registerPostRoutes(app: FastifyInstance, store: PostStore = defa
     if (!result) {
       return reply.code(404).send(errorBody(404, 'NOT_FOUND'));
     }
-    return sendSynthetic(reply, 200, result);
+    return sendSynthetic(reply, 200, engagementPage(result, offset, limit));
   });
 
   /**
