@@ -1,0 +1,11 @@
+{
+  "research/mayhem-current437-program-error-messages-20261028/README.md": "b4b44c1c53ccaecac3391a8817de7aa3dbdcad9594beb00a5bf71f99f9a6116c",
+  "research/mayhem-current437-program-error-messages-20261028/coverage-delta.json": "096f9980252a6e69c3eec3bb6d58c6996dc7fc1250936a759fa68e514cfd1262",
+  "research/mayhem-current437-program-error-messages-20261028/inputs.json": "60cc2dc2ef20268615634bdb9a0b156e125f16dc26d1a85b1fdd64c8e1927724",
+  "research/mayhem-current437-program-error-messages-20261028/manifest.json": "51fc0227a6f30ac660a9625485e61f68b1c51af836842e11a44ae25b4e97c128",
+  "research/mayhem-current437-program-error-messages-20261028/observations.json.gz": "55290f4cd2d68b89cd54b83a9c3b15cb60e763b535ca1b92c40874e749c3ca34",
+  "research/mayhem-current437-program-error-messages-20261028/proof.py": "d6b03b6e3e119f625f29690ccc2aec3830dc76d2c9eaa026e127366500e12a7b",
+  "research/mayhem-current437-program-error-messages-20261028/source-context/solana-program-error-3.0.1.crate": "4f04fa578707b3612b095f0c8e19b66a1233f7c42ca8082fcb3b745afcc0add6",
+  "research/mayhem-current437-program-error-messages-20261028/test_verify.py": "c3cb1710206d50f2a8be0269b5959702508878b8a835ebe8ca6393cafcf403aa",
+  "research/mayhem-current437-program-error-messages-20261028/verify.py": "68ec16eab9a1920b7f8bdcb66cfe55fd8d754e362bf66c8eff41646480c94e55"
+}
