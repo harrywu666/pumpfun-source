@@ -113,7 +113,10 @@ def plan(a, repo, env, *, cache_root=None, policy_directory=None):
             path = pathlib.Path(reference)
             # The manifest keeps the caller's spelling; absolute forms differ by host.
             # A single separator is rooted even when modern ntpath.isabs says False.
-            absolute = reference.startswith(('/', '\\')) or path.is_absolute() or ntpath.isabs(reference)
+            # Drive-prefixed relative paths are resolved from Windows drive state,
+            # not the copied crate, so they are not repository-local entries.
+            drive, _ = ntpath.splitdrive(reference)
+            absolute = bool(drive) or reference.startswith(('/', '\\')) or path.is_absolute() or ntpath.isabs(reference)
             if absolute:
                 raise ValueError('absolute Cargo target/build paths are unsupported: '+reference)
             target = ((repo/name).parent/path).resolve()

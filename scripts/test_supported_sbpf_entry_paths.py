@@ -102,6 +102,14 @@ class EntryPathTests(unittest.TestCase):
         manifest += '\n[[bin]]\nname="unrecorded"\npath="D:\\\\unrecorded.rs"\n'
         self.rejected(manifest)
 
+    def test_windows_drive_relative_build_script_rejected_on_every_host(self):
+        # A POSIX filename with a Windows drive prefix is a relative filename
+        # here, but Windows Cargo resolves it through that drive's current
+        # directory rather than the copied crate.
+        reference = 'C:recorded-drive-relative.rs'
+        (self.crate / reference).write_text('// recorded POSIX-only filename\n')
+        self.rejected(self.with_build(reference))
+
     def test_windows_unc_build_script_rejected_on_every_host(self):
         self.rejected(self.with_build('\\\\\\\\server\\\\share\\\\unrecorded.rs'))
 
