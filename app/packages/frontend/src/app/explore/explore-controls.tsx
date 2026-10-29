@@ -1,14 +1,35 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { type FormEvent, useEffect, useRef, useState } from "react";
+import {
+  type FormEvent,
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
+
+type PendingNavigation = {
+  href: string;
+  query: string;
+};
 
 export function ExploreSearchForm({ initialQuery }: { initialQuery: string }) {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
+  const [isNavigating, startTransition] = useTransition();
   const pendingClear = useRef(false);
+  const pendingNavigation = useRef<PendingNavigation | undefined>(undefined);
 
   useEffect(() => {
+    const pending = pendingNavigation.current;
+    if (pending && initialQuery === pending.query && !isNavigating) {
+      pendingNavigation.current = undefined;
+    }
+  }, [initialQuery, isNavigating]);
+
+  useEffect(() => {
+    if (pendingNavigation.current) return;
     // Clear has already emptied the input; its delayed response must not
     // overwrite a draft typed since the click.
     const completedClear = pendingClear.current && initialQuery === "";
@@ -19,26 +40,42 @@ export function ExploreSearchForm({ initialQuery }: { initialQuery: string }) {
   useEffect(() => {
     const onPopState = () => {
       pendingClear.current = false;
+      pendingNavigation.current = undefined;
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
+  function navigate(navigation: PendingNavigation) {
+    const pending = pendingNavigation.current;
+    if (pending) {
+      // App Router cannot cancel an in-flight RSC request. A document
+      // navigation lets the browser cancel the old request.
+      if (pending.href !== navigation.href) {
+        window.location.assign(navigation.href);
+      }
+      return;
+    }
+    pendingNavigation.current = navigation;
+    startTransition(() => router.push(navigation.href));
+  }
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     pendingClear.current = false;
     const normalized = query.trim();
-    router.push(
-      normalized
+    navigate({
+      href: normalized
         ? `/explore?${new URLSearchParams({ q: normalized }).toString()}`
         : "/explore",
-    );
+      query: normalized,
+    });
   }
 
   function clear() {
     pendingClear.current = initialQuery !== "";
     setQuery("");
-    router.push("/explore");
+    navigate({ href: "/explore", query: "" });
   }
 
   return (
