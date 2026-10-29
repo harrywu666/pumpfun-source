@@ -30,6 +30,7 @@ import { HomeFeedStore, defaultHomeFeedStore } from "./home-feed-store.js";
 import { registerLocalMediaRoutes, type LocalMediaOptions } from "./local-media-routes.js";
 import type { PortfolioBalancesStore } from "./portfolio-balances-store.js";
 import { registerPortfolioBalancesRoutes, PORTFOLIO_BALANCES_NATIVE_ROUTES } from "./portfolio-balances-routes.js";
+import { useStrictJsonBodyParser } from "./json-body-parser.js";
 
 export type Fixture = {
   method: string;
@@ -399,6 +400,7 @@ export function buildApp(fixtures: Fixture[] = [], opts: BuildAppOptions = {}) {
     (opts.userStore ? new LeaderboardStore(undefined, store) : defaultLeaderboardStore);
   registerHomeFeedRoutes(app, opts.homeFeedStore ?? defaultHomeFeedStore);
   app.register(async (native) => {
+    useStrictJsonBodyParser(native);
     native.addHook("preHandler", apiKeyGate);
     if (opts.portfolioBalancesStore) registerPortfolioBalancesRoutes(native, opts.portfolioBalancesStore);
     registerUserRoutes(native, store);
