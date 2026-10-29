@@ -345,7 +345,11 @@ export class UserTradesStore {
         const decoded = Buffer.from(cursor, "base64url");
         if (decoded.toString("base64url") !== cursor) throw new Error();
         const value = JSON.parse(
-          new TextDecoder("utf-8", { fatal: true }).decode(decoded),
+          new TextDecoder("utf-8", {
+            fatal: true,
+            // Do not strip a BOM: JSON.parse would otherwise accept it.
+            ignoreBOM: true,
+          }).decode(decoded),
         );
         object(value, ["v", "snapshot", "selection", "after"], "cursor");
         if (

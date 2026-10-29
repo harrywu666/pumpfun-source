@@ -263,6 +263,20 @@ test("keyset cursor keeps same-second fills and is bound to materialization, ide
     assert.throws(() => store.page("person-a", { cursor }), TradesQueryError);
 });
 
+test("cursor decoding rejects a UTF-8 BOM added to a valid payload", () => {
+  const store = new UserTradesStore(dataset());
+  const cursor = store.page("person-a", { limit: 1 }).nextCursor!;
+  const body = Buffer.from(cursor, "base64url");
+  const bomCursor = Buffer.concat([
+    Buffer.from([0xef, 0xbb, 0xbf]),
+    body,
+  ]).toString("base64url");
+  assert.throws(
+    () => store.page("person-a", { limit: 1, cursor: bomCursor }),
+    TradesQueryError,
+  );
+});
+
 test("chain-keyed identities and metadata never collapse same mint/slot across chains", () => {
   const data = dataset();
   data.rows[3].facts.slotIndexId = sid(12);
