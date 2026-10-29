@@ -9,6 +9,16 @@ import { GlobalConfig } from "./types";
 import { getPumpAmmProgram } from "./util";
 import { PumpAmm } from "../idl/pump_amm";
 
+const PROTOCOL_FEE_RECIPIENT_COUNT = 8;
+
+function assertProtocolFeeRecipients(recipients: PublicKey[]): void {
+  if (recipients.length !== PROTOCOL_FEE_RECIPIENT_COUNT) {
+    throw new Error(
+      `Expected exactly ${PROTOCOL_FEE_RECIPIENT_COUNT} protocol fee recipients, got ${recipients.length}.`,
+    );
+  }
+}
+
 export class PumpAmmAdminSdk {
   private readonly connection: Connection;
   private readonly program: Program<PumpAmm>;
@@ -39,6 +49,7 @@ export class PumpAmmAdminSdk {
     admin: PublicKey,
     adminSetCoinCreatorAuthority: PublicKey,
   ): Promise<TransactionInstruction> {
+    assertProtocolFeeRecipients(protocolFeeRecipients);
     return this.program.methods
       .createConfig(
         lpFeeBasisPoints,
@@ -98,6 +109,7 @@ export class PumpAmmAdminSdk {
     admin: PublicKey,
     adminSetCoinCreatorAuthority: PublicKey,
   ): Promise<TransactionInstruction> {
+    assertProtocolFeeRecipients(protocolFeeRecipients);
     return this.program.methods
       .updateFeeConfig(
         lpFeeBasisPoints,
