@@ -14,16 +14,17 @@ export function depositToken0(
     throw new Error("Slippage must be between 0 and 100 (0% to 100%)");
   }
 
-  // Calculate the corresponding output amount based on the pool's reserves
-  const token1 = token0.mul(token1Reserve).div(token0Reserve);
+  // The program first determines the LP tokens minted from the input side,
+  // then requires ceil(token1Reserve * lpToken / totalLpTokens) for the
+  // counterpart. Deriving that amount from token0 alone rounds it down too
+  // early and can underquote the required deposit.
+  const lpToken = token0.mul(totalLpTokens).div(token0Reserve);
+  const token1 = ceilDiv(token1Reserve.mul(lpToken), totalLpTokens);
 
   // Apply slippage tolerance
   const slippageFactor = new BN((1 + slippage / 100) * 1_000_000_000);
   const maxToken0 = token0.mul(slippageFactor).div(new BN(1_000_000_000));
   const maxToken1 = token1.mul(slippageFactor).div(new BN(1_000_000_000));
-
-  // Calculate the LP tokens to mint, proportional to the deposit amount
-  const lpToken = token0.mul(totalLpTokens).div(token0Reserve);
 
   return {
     token1,
