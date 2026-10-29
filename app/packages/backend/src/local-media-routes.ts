@@ -50,8 +50,9 @@ export function registerLocalMediaRoutes(
             authorizationFields += 1;
         }
         const auth = request.headers.authorization;
+        // HTTP authentication scheme names are case-insensitive (RFC 9110 11.1).
         const token =
-          typeof auth === "string" && auth.startsWith("Bearer ")
+          typeof auth === "string" && /^Bearer /i.test(auth)
             ? auth.slice(7)
             : "";
         if (

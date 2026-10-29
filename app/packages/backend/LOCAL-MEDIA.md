@@ -96,6 +96,8 @@ duplicate fields are rejected with the existing 401 even if their names have
 different casing or their values are identical. This check precedes normalized
 header use because Node may otherwise discard later Authorization values.
 Bearer authorization is checked using constant-time SHA-256 digest comparison.
+The HTTP authentication scheme name is case-insensitive, as required by
+[RFC 9110 section 11.1](https://www.rfc-editor.org/rfc/rfc9110.html#section-11.1).
 `X-API-Key` is not an alternate local capability source. No CORS headers or
 cookie authentication are added.
 This is defense in depth for an explicitly loopback-bound development server;
