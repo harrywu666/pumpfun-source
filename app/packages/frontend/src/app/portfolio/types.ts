@@ -125,33 +125,90 @@ function isMintHolding(value: unknown): value is PortfolioMintHolding {
   );
 }
 
+function isConsistentHoldingModels(
+  accounts: unknown[],
+  mints: unknown[],
+  expected: TokenProgram,
+  expectedProgramId: unknown,
+): boolean {
+  const tokenAccountIds = new Set<string>();
+  const totals = new Map<
+    string,
+    { rawAmount: bigint; decimals: number; accountCount: number }
+  >();
+  for (const account of accounts) {
+    if (
+      !isTokenAccount(account) ||
+      account.program !== expected ||
+      account.programId !== expectedProgramId ||
+      tokenAccountIds.has(account.tokenAccount)
+    )
+      return false;
+    tokenAccountIds.add(account.tokenAccount);
+    const total = totals.get(account.mint);
+    if (total === undefined) {
+      totals.set(account.mint, {
+        rawAmount: BigInt(account.rawAmount),
+        decimals: account.decimals,
+        accountCount: 1,
+      });
+      continue;
+    }
+    if (total.decimals !== account.decimals) return false;
+    total.rawAmount += BigInt(account.rawAmount);
+    total.accountCount += 1;
+  }
+
+  if (mints.length !== totals.size) return false;
+  const mintIds = new Set<string>();
+  for (const holding of mints) {
+    if (
+      !isMintHolding(holding) ||
+      holding.program !== expected ||
+      holding.programId !== expectedProgramId ||
+      mintIds.has(holding.mint)
+    )
+      return false;
+    mintIds.add(holding.mint);
+    const total = totals.get(holding.mint);
+    if (
+      total === undefined ||
+      total.decimals !== holding.decimals ||
+      total.rawAmount !== BigInt(holding.rawAmount) ||
+      total.accountCount !== holding.accountCount
+    )
+      return false;
+  }
+  return true;
+}
+
+function hasSharedValue(left: readonly string[], right: readonly string[]) {
+  const values = new Set(left);
+  return right.some((value) => values.has(value));
+}
+
 function isProgramHoldings(
   value: unknown,
   expected: TokenProgram,
 ): value is PortfolioProgramHoldings {
-  return (
-    isRecord(value) &&
-    value.program === expected &&
-    value.programId ===
+  if (
+    !isRecord(value) ||
+    value.program !== expected ||
+    value.programId !==
       (expected === "spl-token"
         ? SPL_TOKEN_PROGRAM_ID
-        : TOKEN_2022_PROGRAM_ID) &&
-    Number.isSafeInteger(value.contextSlot) &&
-    Number(value.contextSlot) >= 0 &&
-    Array.isArray(value.accounts) &&
-    value.accounts.every(
-      (account) =>
-        isTokenAccount(account) &&
-        account.program === expected &&
-        account.programId === value.programId,
-    ) &&
-    Array.isArray(value.mints) &&
-    value.mints.every(
-      (mint) =>
-        isMintHolding(mint) &&
-        mint.program === expected &&
-        mint.programId === value.programId,
-    )
+        : TOKEN_2022_PROGRAM_ID) ||
+    !Number.isSafeInteger(value.contextSlot) ||
+    Number(value.contextSlot) < 0 ||
+    !Array.isArray(value.accounts) ||
+    !Array.isArray(value.mints)
+  )
+    return false;
+  return isConsistentHoldingModels(
+    value.accounts,
+    value.mints,
+    expected,
+    value.programId,
   );
 }
 
@@ -168,25 +225,38 @@ export function isPortfolioResponse(
       typeof value.error.retryable === "boolean"
     );
   }
+  if (
+    typeof value.address !== "string" ||
+    (expectedAddress !== undefined && value.address !== expectedAddress) ||
+    value.cluster !== "mainnet-beta" ||
+    value.genesisHash !== MAINNET_GENESIS_HASH ||
+    value.commitment !== "confirmed" ||
+    typeof value.observedAt !== "string" ||
+    !Number.isFinite(Date.parse(value.observedAt)) ||
+    typeof value.endpointHost !== "string" ||
+    !isRecord(value.sol) ||
+    !hasAmount(value.sol.lamports, 9, value.sol.amount) ||
+    !Number.isSafeInteger(value.sol.contextSlot) ||
+    Number(value.sol.contextSlot) < 0 ||
+    !isProgramHoldings(value.splToken, "spl-token") ||
+    !isProgramHoldings(value.token2022, "token-2022") ||
+    value.snapshotAtomic !== false
+  )
+    return false;
+  const splToken = value.splToken;
+  const token2022 = value.token2022;
   return (
-    typeof value.address === "string" &&
-    (expectedAddress === undefined || value.address === expectedAddress) &&
-    value.cluster === "mainnet-beta" &&
-    value.genesisHash === MAINNET_GENESIS_HASH &&
-    value.commitment === "confirmed" &&
-    typeof value.observedAt === "string" &&
-    Number.isFinite(Date.parse(value.observedAt)) &&
-    typeof value.endpointHost === "string" &&
-    isRecord(value.sol) &&
-    hasAmount(value.sol.lamports, 9, value.sol.amount) &&
-    Number.isSafeInteger(value.sol.contextSlot) &&
-    Number(value.sol.contextSlot) >= 0 &&
-    isProgramHoldings(value.splToken, "spl-token") &&
-    isProgramHoldings(value.token2022, "token-2022") &&
+    !hasSharedValue(
+      splToken.accounts.map((account) => account.tokenAccount),
+      token2022.accounts.map((account) => account.tokenAccount),
+    ) &&
+    !hasSharedValue(
+      splToken.mints.map((mint) => mint.mint),
+      token2022.mints.map((mint) => mint.mint),
+    ) &&
     (expectedAddress === undefined ||
-      [...value.splToken.accounts, ...value.token2022.accounts].every(
-        (account) => account?.owner === expectedAddress,
-      )) &&
-    value.snapshotAtomic === false
+      [...splToken.accounts, ...token2022.accounts].every(
+        (account) => account.owner === expectedAddress,
+      ))
   );
 }
