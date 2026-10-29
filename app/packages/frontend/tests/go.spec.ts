@@ -215,6 +215,26 @@ test("detail is keyboard dismissible, restores focus and exposes no authenticate
   await expect(inspect).toBeFocused();
 });
 
+test("keyboard-opened bounty details receive focus before their controls", async ({
+  page,
+}) => {
+  await page.goto("/go");
+  const inspect = page
+    .getByRole("button", { name: /^Inspect archived bounty / })
+    .first();
+  await inspect.focus();
+  await page.keyboard.press("Enter");
+  const detail = page.getByTestId("go-bounty-detail");
+  await expect(detail).toBeVisible();
+  await expect(
+    detail.getByRole("heading", { name: /^.+$/ }).first(),
+  ).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(
+    detail.getByRole("button", { name: "Close bounty detail" }),
+  ).toBeFocused();
+});
+
 test("all required viewports avoid document overflow and preserve shell navigation", async ({
   page,
 }) => {

@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
   useTransition,
+  type RefObject,
 } from "react";
 import type {
   ArchivedBounty,
@@ -101,9 +102,11 @@ function isPageResult(value: unknown): value is GoPageResult {
 function BountyDetail({
   bounty,
   onClose,
+  titleRef,
 }: {
   bounty?: ArchivedBounty;
   onClose: () => void;
+  titleRef: RefObject<HTMLHeadingElement | null>;
 }) {
   if (!bounty) return null;
   return (
@@ -115,7 +118,9 @@ function BountyDetail({
       <div className="go-detail-heading">
         <div>
           <p className="go-kicker">Archived detail</p>
-          <h2 id="go-detail-title">{bounty.title}</h2>
+          <h2 id="go-detail-title" ref={titleRef} tabIndex={-1}>
+            {bounty.title}
+          </h2>
         </div>
         <button
           type="button"
@@ -186,6 +191,8 @@ export default function GoExplorer({
   const initialKey = useRef<string | undefined>(undefined);
   const pendingClear = useRef(false);
   const cardRefs = useRef(new Map<string, HTMLButtonElement>());
+  const detailTitle = useRef<HTMLHeadingElement>(null);
+  const pendingDetailFocus = useRef(false);
 
   const rawQ = searchParams.get("q") ?? "";
   const q = rawQ.length <= 256 ? rawQ : initialQuery.q;
@@ -341,6 +348,17 @@ export default function GoExplorer({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [closeDetail, selectedTask]);
 
+  useEffect(() => {
+    if (!pendingDetailFocus.current) return;
+    if (!selectedTask) {
+      pendingDetailFocus.current = false;
+      return;
+    }
+    if (!selected) return;
+    pendingDetailFocus.current = false;
+    detailTitle.current?.focus();
+  }, [selected, selectedTask]);
+
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     pendingClear.current = false;
@@ -479,7 +497,11 @@ export default function GoExplorer({
           </div>
           {selectedTask ? (
             selected ? (
-              <BountyDetail bounty={selected} onClose={closeDetail} />
+              <BountyDetail
+                bounty={selected}
+                onClose={closeDetail}
+                titleRef={detailTitle}
+              />
             ) : (
               <section className="go-failure" role="alert">
                 <h2>Archived bounty not found</h2>
@@ -551,7 +573,10 @@ export default function GoExplorer({
                     }}
                     className="go-primary"
                     type="button"
-                    onClick={() => navigate({ task: bounty.taskId })}
+                    onClick={(event) => {
+                      pendingDetailFocus.current = event.detail === 0;
+                      navigate({ task: bounty.taskId });
+                    }}
                     aria-label={`Inspect archived bounty ${bounty.title}`}
                   >
                     Inspect details
