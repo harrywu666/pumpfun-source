@@ -260,52 +260,77 @@ class Cdp {
 
 async function launchChrome(chrome) {
   const profile = mkdtempSync(join(tmpdir(), "shell-parity-"));
-  const child = spawn(
-    chrome,
-    [
-      "--headless=new",
-      "--disable-gpu",
-      "--hide-scrollbars",
-      "--no-first-run",
-      "--no-default-browser-check",
-      ...(process.platform === "linux" ? ["--no-sandbox"] : []),
-      "--force-device-scale-factor=1",
-      "--remote-debugging-port=0",
-      `--user-data-dir=${profile}`,
-      "about:blank",
-    ],
-    { stdio: ["ignore", "ignore", "pipe"] },
-  );
-  const endpoint = await new Promise((found, failed) => {
-    let output = "";
-    child.stderr.on("data", (chunk) => {
-      output += chunk;
-      const match = output.match(/DevTools listening on (ws:\/\/\S+)/);
-      if (match) found(match[1]);
-    });
-    child.on("exit", () =>
-      failed(new Error(`Chrome exited before DevTools was ready:\n${output}`)),
+  let child;
+  let socket;
+  try {
+    child = spawn(
+      chrome,
+      [
+        "--headless=new",
+        "--disable-gpu",
+        "--hide-scrollbars",
+        "--no-first-run",
+        "--no-default-browser-check",
+        ...(process.platform === "linux" ? ["--no-sandbox"] : []),
+        "--force-device-scale-factor=1",
+        "--remote-debugging-port=0",
+        `--user-data-dir=${profile}`,
+        "about:blank",
+      ],
+      { stdio: ["ignore", "ignore", "pipe"] },
     );
-  });
-  const socket = new WebSocket(endpoint);
-  await new Promise((open) =>
-    socket.addEventListener("open", open, { once: true }),
-  );
-  return {
-    cdp: new Cdp(socket),
-    close: async () => {
-      socket.close();
+    const endpoint = await new Promise((found, failed) => {
+      let output = "";
+      child.stderr.on("data", (chunk) => {
+        output += chunk;
+        const match = output.match(/DevTools listening on (ws:\/\/\S+)/);
+        if (match) found(match[1]);
+      });
+      child.on("exit", () =>
+        failed(
+          new Error(`Chrome exited before DevTools was ready:\n${output}`),
+        ),
+      );
+    });
+    socket = new WebSocket(endpoint);
+    await new Promise((open, failed) => {
+      socket.addEventListener("open", open, { once: true });
+      socket.addEventListener(
+        "error",
+        () => failed(new Error("Chrome DevTools WebSocket connection failed")),
+        { once: true },
+      );
+    });
+    return {
+      cdp: new Cdp(socket),
+      close: async () => {
+        socket.close();
+        const exited = new Promise((done) => child.once("exit", done));
+        child.kill();
+        await exited; // Chrome writes to its profile until it exits
+        rmSync(profile, {
+          recursive: true,
+          force: true,
+          maxRetries: 5,
+          retryDelay: 100,
+        });
+      },
+    };
+  } catch (error) {
+    socket?.close();
+    if (child && child.exitCode === null && child.signalCode === null) {
       const exited = new Promise((done) => child.once("exit", done));
       child.kill();
-      await exited; // Chrome writes to its profile until it exits
-      rmSync(profile, {
-        recursive: true,
-        force: true,
-        maxRetries: 5,
-        retryDelay: 100,
-      });
-    },
-  };
+      await exited;
+    }
+    rmSync(profile, {
+      recursive: true,
+      force: true,
+      maxRetries: 5,
+      retryDelay: 100,
+    });
+    throw error;
+  }
 }
 
 async function evaluate(cdp, sessionId, expression) {
