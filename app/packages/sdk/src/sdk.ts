@@ -626,13 +626,29 @@ function buybackAtaInstructions(
   ];
 }
 
+const SLIPPAGE_MICRO_PERCENT_SCALE = 1_000_000;
+const PERCENT_DENOMINATOR = 100_000_000;
+
+// Convert a percentage to an integer amount without dropping fractional percentages.
+function slippageAmount(amount: BN, slippage: number): BN {
+  if (!Number.isFinite(slippage) || slippage < 0) {
+    throw new Error("Slippage must be a finite non-negative percentage");
+  }
+  const microPercent = new BN(
+    Math.floor(slippage * SLIPPAGE_MICRO_PERCENT_SCALE),
+  );
+  return amount.mul(microPercent).div(new BN(PERCENT_DENOMINATOR));
+}
+
+// `amount` plus `slippage` percent.
+function addSlippage(amount: BN, slippage: number): BN {
+  return amount.add(slippageAmount(amount, slippage));
+}
+
 // `amount` less `slippage` percent, never below `floor` (a buy's
 // `min_tokens_out` must be at least 1, a sell's minimum may be 0).
 function lessSlippage(amount: BN, slippage: number, floor = 0): BN {
-  return BN.max(
-    amount.sub(amount.mul(new BN(Math.floor(slippage * 10))).div(new BN(1000))),
-    new BN(floor),
-  );
+  return BN.max(amount.sub(slippageAmount(amount, slippage)), new BN(floor));
 }
 
 /**
@@ -1765,9 +1781,7 @@ export class PumpSdk {
       feeRecipient: getFeeRecipient(global, mayhemMode),
       buybackFeeRecipient: getStaticRandomFeeRecipientForBuyback(),
       amount,
-      solAmount: solAmount.add(
-        solAmount.mul(new BN(Math.floor(slippage * 10))).div(new BN(1000)),
-      ),
+      solAmount: addSlippage(solAmount, slippage),
       tokenProgram,
     });
   }
@@ -1807,9 +1821,7 @@ export class PumpSdk {
         feeRecipient: getFeeRecipient(global, mayhemMode),
         buybackFeeRecipient: getStaticRandomFeeRecipientForBuyback(),
         amount,
-        solAmount: solAmount.sub(
-          solAmount.mul(new BN(Math.floor(slippage * 10))).div(new BN(1000)),
-        ),
+        solAmount: lessSlippage(solAmount, slippage),
         tokenProgram,
         cashback,
       }),
@@ -2820,9 +2832,7 @@ export class PumpSdk {
       feeRecipient: getFeeRecipient(global, mayhemMode),
       buybackFeeRecipient: getStaticRandomFeeRecipientForBuyback(),
       amount,
-      quoteAmount: quoteAmount.add(
-        quoteAmount.mul(new BN(Math.floor(slippage * 10))).div(new BN(1000)),
-      ),
+      quoteAmount: addSlippage(quoteAmount, slippage),
       tokenProgram,
       quoteMint,
       quoteTokenProgram,
@@ -2866,9 +2876,7 @@ export class PumpSdk {
         feeRecipient: getFeeRecipient(global, bondingCurve.isMayhemMode),
         buybackFeeRecipient: getStaticRandomFeeRecipientForBuyback(),
         amount,
-        quoteAmount: quoteAmount.sub(
-          quoteAmount.mul(new BN(Math.floor(slippage * 10))).div(new BN(1000)),
-        ),
+        quoteAmount: lessSlippage(quoteAmount, slippage),
         tokenProgram,
         quoteMint,
         quoteTokenProgram,
@@ -3187,9 +3195,7 @@ export class PumpSdk {
         user,
         mint,
         amount,
-        quoteAmount: quoteAmount.add(
-          quoteAmount.mul(new BN(Math.floor(slippage * 10))).div(new BN(1000)),
-        ),
+        quoteAmount: addSlippage(quoteAmount, slippage),
         tokenProgram,
         quoteMint: bondingCurve.quoteMint,
         quoteTokenProgram,
