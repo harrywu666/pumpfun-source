@@ -61,7 +61,12 @@ export async function apiKeyGate(
   if (candidate === undefined && typeof alias === "string") {
     candidate = alias;
   }
-  if (candidate !== undefined && apiKeyPattern.test(candidate)) return;
+  if (candidate !== undefined && apiKeyPattern.test(candidate)) {
+    // The documented response-header contract makes every keyed response
+    // non-cacheable, including route errors after this gate accepts the key.
+    reply.header("Cache-Control", "no-store");
+    return;
+  }
   // The observed 401 envelope (evidence/api-probes.json, object
   // 1837f7894abd389a) reports the path without the local /v1 prefix and names
   // both key headers; the specification's examples diverge on both points, so

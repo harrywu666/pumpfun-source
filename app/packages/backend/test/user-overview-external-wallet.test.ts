@@ -73,7 +73,7 @@ test('a present local profile takes precedence over external-wallet classificati
         counts: { followers: 3, following: 2 }, verified: true,
         achievementBadgeIds: [], banned: true, createdCoinsCount: 0, degraded: [],
       });
-      assert.equal(response.headers['cache-control'], undefined);
+      assert.equal(response.headers['cache-control'], 'no-store');
     }
     assert.deepEqual(store.getById(wallet), user);
   } finally {
