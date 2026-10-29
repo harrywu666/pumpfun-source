@@ -51,12 +51,16 @@ export function parseCalloutListQuery(query: URLSearchParams) {
     );
   if (window !== "ALLTIME")
     throw new CalloutListError(501, "CALLOUT_LIST_WINDOW_UNAVAILABLE");
+  const pageToken = query.get("pageToken");
+  // Omission selects the first page; an explicitly supplied empty cursor is malformed.
+  if (pageToken === "")
+    throw new CalloutListError(400, "CALLOUT_LIST_PAGE_TOKEN_INVALID");
   return {
     limit,
     sortBy: sortBy as "TIMESTAMP" | "MULTIPLE",
     sortOrder: sortOrder as "ASC" | "DESC",
     includeMembers,
-    pageToken: query.get("pageToken") ?? "",
+    pageToken: pageToken ?? "",
   };
 }
 
