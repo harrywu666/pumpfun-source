@@ -458,9 +458,12 @@ export function buildApp(fixtures: Fixture[] = [], opts: BuildAppOptions = {}) {
         .code(501)
         .send({ error: "DUPLICATE_QUERY_KEYS_UNIMPLEMENTED" });
     }
-    const fixture = fixtureMap.get(
-      fixtureKey(request.method, pathname, Object.fromEntries(entries)),
-    );
+    const query = Object.fromEntries(entries);
+    const fixture =
+      fixtureMap.get(fixtureKey(request.method, pathname, query)) ??
+      (request.method === "HEAD"
+        ? fixtureMap.get(fixtureKey("GET", pathname, query))
+        : undefined);
     if (!fixture) {
       return reply.code(501).send({
         error: "COMPATIBILITY_NOT_IMPLEMENTED",
