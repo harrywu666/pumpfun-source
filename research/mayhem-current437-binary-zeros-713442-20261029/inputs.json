@@ -1,0 +1,7 @@
+{
+  "evidence/original/mayhem/deployed.so": "a87fa9f866272514e6acb852b668c4a08aeb173d56c883039991d114d1199bdb",
+  "research/mayhem-current437-binary-zeros-713442-20261029/reference_trace.py": "2fe4cf60c985b9953b5f9068b66e471cae1da510093df33d26039cbbe5485fd7",
+  "research/mayhem-current437-binary-zeros-713442-20261029/test_verify.py": "2b70a0d9d8bf6521ac159e41c03593c75a632182fc957abb1d622193bdd96d5a",
+  "research/mayhem-current437-binary-zeros-713442-20261029/verify.py": "2ccb796fb5549182e2403c1647e87c3be82116e4a7ee2f83cc350d8bc45d59de",
+  "research/mayhem-current437-composition-20261028/builds/first/symbols.so.gz": "9c8c50857bfe8b80ebf08ebb50c905c6582676cb8e572d39f45de8647f62fbae"
+}

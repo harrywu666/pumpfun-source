@@ -1,0 +1,246 @@
+{
+  "attribution": "provider=OpenCode model=opencode/deepseek-v4.1-flash-free client=opencode CLI 1.19.5",
+  "target_interval": [
+    713442,
+    713704
+  ],
+  "new_bytes": 0,
+  "new_intervals": [],
+  "still_open": [
+    [
+      713442,
+      713704
+    ]
+  ],
+  "image": {
+    "deployed_sha256": "a87fa9f866272514e6acb852b668c4a08aeb173d56c883039991d114d1199bdb",
+    "symbols_sha256": "9c8c50857bfe8b80ebf08ebb50c905c6582676cb8e572d39f45de8647f62fbae",
+    "text": [
+      288,
+      706744
+    ],
+    "rodata": [
+      707032,
+      18396
+    ],
+    "data_rel_ro": [
+      725432,
+      7784
+    ]
+  },
+  "gap": {
+    "binary_interval": [
+      713442,
+      713538
+    ],
+    "binary_hex": "0c14defc825ec67694250818bb654065f4298d3156d571b4d4f8090c18e9a86306ddf6e1d765a193d9cbe146ceeb79ac1cb485ed5f5b37913a8cf5857eff00a906ddf6e1ee758fde18425dbce46ccddab61afc4d83b90d27febdf928d8a18bfc",
+    "zeros_interval": [
+      713538,
+      713704
+    ],
+    "u64_markers": [
+      [
+        713544,
+        9
+      ],
+      [
+        713624,
+        17
+      ]
+    ]
+  },
+  "lddw_sites": [
+    {
+      "pc": 16168,
+      "pointer": 713474,
+      "dst_register": 3,
+      "next_opcode": 121,
+      "next_name": "ldxdw",
+      "next_operands": [
+        130,
+        24,
+        0
+      ],
+      "length_immediate_at_pc_plus_16": null,
+      "pointer_class": "fixed-offset-64B-compare",
+      "why_not_counted": "pc+16 is ldxdw; a constant-offset read has no length immediate"
+    },
+    {
+      "pc": 17072,
+      "pointer": 713474,
+      "dst_register": 1,
+      "next_opcode": 121,
+      "next_name": "ldxdw",
+      "next_operands": [
+        103,
+        32,
+        0
+      ],
+      "length_immediate_at_pc_plus_16": null,
+      "pointer_class": "fixed-offset-64B-compare",
+      "why_not_counted": "pc+16 is ldxdw; a constant-offset read has no length immediate"
+    },
+    {
+      "pc": 18096,
+      "pointer": 713474,
+      "dst_register": 3,
+      "next_opcode": 121,
+      "next_name": "ldxdw",
+      "next_operands": [
+        130,
+        24,
+        0
+      ],
+      "length_immediate_at_pc_plus_16": null,
+      "pointer_class": "fixed-offset-64B-compare",
+      "why_not_counted": "pc+16 is ldxdw; a constant-offset read has no length immediate"
+    },
+    {
+      "pc": 29112,
+      "pointer": 713442,
+      "dst_register": 8,
+      "next_opcode": 121,
+      "next_name": "ldxdw",
+      "next_operands": [
+        131,
+        0,
+        0
+      ],
+      "length_immediate_at_pc_plus_16": null,
+      "pointer_class": "fixed-offset-32B-compare",
+      "why_not_counted": "pc+16 is ldxdw; a constant-offset read has no length immediate"
+    },
+    {
+      "pc": 31752,
+      "pointer": 713474,
+      "dst_register": 1,
+      "next_opcode": 121,
+      "next_name": "ldxdw",
+      "next_operands": [
+        39,
+        0,
+        0
+      ],
+      "length_immediate_at_pc_plus_16": null,
+      "pointer_class": "fixed-offset-64B-compare",
+      "why_not_counted": "pc+16 is ldxdw; a constant-offset read has no length immediate"
+    },
+    {
+      "pc": 311360,
+      "pointer": 713442,
+      "dst_register": 1,
+      "next_opcode": 121,
+      "next_name": "ldxdw",
+      "next_operands": [
+        99,
+        24,
+        0
+      ],
+      "length_immediate_at_pc_plus_16": null,
+      "pointer_class": "fixed-offset-32B-compare",
+      "why_not_counted": "pc+16 is ldxdw; a constant-offset read has no length immediate"
+    },
+    {
+      "pc": 334240,
+      "pointer": 713442,
+      "dst_register": 1,
+      "next_opcode": 121,
+      "next_name": "ldxdw",
+      "next_operands": [
+        99,
+        24,
+        0
+      ],
+      "length_immediate_at_pc_plus_16": null,
+      "pointer_class": "fixed-offset-32B-compare",
+      "why_not_counted": "pc+16 is ldxdw; a constant-offset read has no length immediate"
+    },
+    {
+      "pc": 605280,
+      "pointer": 713544,
+      "dst_register": 2,
+      "next_opcode": 133,
+      "next_name": "call",
+      "next_operands": [
+        16,
+        0,
+        -592
+      ],
+      "length_immediate_at_pc_plus_16": null,
+      "pointer_class": "static-usize-9-argument",
+      "why_not_counted": "pc+16 is call; the immediate value is not a byte length"
+    },
+    {
+      "pc": 606912,
+      "pointer": 713624,
+      "dst_register": 2,
+      "next_opcode": 133,
+      "next_name": "call",
+      "next_operands": [
+        16,
+        0,
+        -796
+      ],
+      "length_immediate_at_pc_plus_16": null,
+      "pointer_class": "static-usize-17-argument",
+      "why_not_counted": "pc+16 is call; the immediate value is not a byte length"
+    }
+  ],
+  "pointer_classes": [
+    {
+      "pointer": 713442,
+      "pcs": [
+        29112,
+        311360,
+        334240
+      ],
+      "span": 32,
+      "class": "fixed-offset-32B-compare",
+      "why_not_counted": "unrolled fixed-offset qword reads; pc+16 is ldxdw, no length immediate"
+    },
+    {
+      "pointer": 713474,
+      "pcs": [
+        16168,
+        17072,
+        18096,
+        31752
+      ],
+      "span": 64,
+      "class": "fixed-offset-64B-compare",
+      "why_not_counted": "unrolled fixed-offset qword reads; pc+16 is ldxdw, no length immediate"
+    },
+    {
+      "pointer": 713544,
+      "pcs": [
+        605280
+      ],
+      "value": 9,
+      "class": "static-usize-9-argument",
+      "why_not_counted": "pc+16 is call; the 9 is a static &usize argument, not a byte length"
+    },
+    {
+      "pointer": 713624,
+      "pcs": [
+        606912
+      ],
+      "value": 17,
+      "class": "static-usize-17-argument",
+      "why_not_counted": "pc+16 is call; the 17 is a static &usize argument, not a byte length"
+    }
+  ],
+  "descriptor_scan": {
+    "data_rel_ro": [
+      725432,
+      7784
+    ],
+    "triples_low0_high_in_gap": 0,
+    "ptr_len_pairs_into_gap": 0
+  },
+  "rejection_reasons": {
+    "classic_ptr_plus_imm": "all nine lddw sites have ldxdw or call at pc+16, never mov64 imm",
+    "index_equal": "no explicit index upper-bound immediate plus read width gates these bytes",
+    "unrolled_qword_compare": "matching 32B/64B blobs are not a counted bound and no merged packet accepted this grammar",
+    "descriptor": "no (low=0, high in gap, length) descriptor and no (pointer, length) pair in .data.rel.ro"
+  }
+}
