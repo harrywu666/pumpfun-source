@@ -82,24 +82,15 @@ class ParallelReportPublicationTests(unittest.TestCase):
         self.assertEqual(report['case_count'], 1)
 
     def test_failed_final_write_never_publishes_partial_json(self):
-        output = (self.root / 'reports/report.json').resolve()
-        real_open = Path.open
-        real_write_bytes = Path.write_bytes
+        output = self.root / 'reports/report.json'
 
-        def interrupt_destination(path, data):
-            if path == output:
-                with real_open(path, 'wb') as stream:
-                    stream.write(b'{')
-                raise OSError('injected destination write failure')
-            return real_write_bytes(path, data)
-
-        with mock.patch.object(Path, 'write_bytes', interrupt_destination):
-            try:
+        with mock.patch.object(validator.os, 'fsync', side_effect=OSError(
+                'injected durability failure')):
+            with self.assertRaisesRegex(OSError, 'injected durability failure'):
                 self.run_validator(output)
-            except OSError as exc:
-                self.assertIn('injected destination write failure', str(exc))
 
-        self.assertEqual(json.loads(output.read_bytes())['case_count'], 1)
+        self.assertFalse(output.exists())
+        self.assertEqual(list(output.parent.glob('.' + output.name + '.*.tmp')), [])
 
     def test_failed_publication_preserves_prior_report(self):
         output = self.root / 'reports/report.json.gz'
