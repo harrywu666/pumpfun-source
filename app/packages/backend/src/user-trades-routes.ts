@@ -49,7 +49,8 @@ export function registerUserTradesRoutes(
       if (qs.has("mint")) opts.mint = qs.get("mint");
       if (qs.has("cursor")) opts.cursor = qs.get("cursor");
       if (qs.has("types")) {
-        const values = qs.get("types")!.split(",");
+        const raw = qs.get("types")!;
+        const values = raw === "" ? [] : raw.split(",");
         if (
           values.length > 2 ||
           !values.every((value) => value === "trades" || value === "transfers")
