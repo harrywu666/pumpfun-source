@@ -151,6 +151,31 @@ test("SDK-padded defaults never become observed false or zero-key fields for old
     assert.equal(isHolderConfiguration(value, MINT, REWARDS), true);
   }
 });
+test("Global records shorter than the oldest valid layout fail closed", async () => {
+  const short = data("Global").subarray(0, 1044);
+  await assert.rejects(
+    read(fixture({ global: account(short) })),
+    (error) => error.code === "RPC_RESPONSE_INVALID",
+  );
+
+  const value = await read(fixture());
+  assert.equal(
+    isHolderConfiguration(
+      {
+        ...value,
+        global: {
+          status: "decoded",
+          dataBytes: short.length,
+          isHolderRewardEnabled: null,
+          holderRewardClaimAuthority: null,
+        },
+      },
+      MINT,
+      REWARDS,
+    ),
+    false,
+  );
+});
 test("complete physical fields are observed even when newer trailing fields are absent", async () => {
   const value = await read(
     fixture({

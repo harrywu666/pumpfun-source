@@ -5,6 +5,7 @@
   "accounts": {
     "Global": {
       "size": 1088,
+      "minimumSize": 1045,
       "discriminator": [
         167,
         232,

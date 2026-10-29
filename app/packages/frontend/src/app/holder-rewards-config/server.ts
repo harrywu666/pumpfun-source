@@ -42,6 +42,7 @@ function safeInteger(value: unknown): number {
 function account(
   value: unknown,
   discriminator: readonly number[],
+  minimumSize = 8,
 ): AccountInfo<Buffer> {
   const raw = record(value);
   if (
@@ -59,6 +60,7 @@ function account(
     return invalid();
   const data = Buffer.from(raw.data[0], "base64");
   if (
+    data.length < minimumSize ||
     data.length > 65_536 ||
     data.toString("base64") !== raw.data[0] ||
     !data.subarray(0, 8).equals(Buffer.from(discriminator))
@@ -146,6 +148,7 @@ export async function readHolderConfigurationWithRpc(
       const info = account(
         envelope.value[0],
         contract.accounts.Global.discriminator,
+        contract.accounts.Global.minimumSize,
       );
       const decoded = PUMP_SDK.decodeGlobal(info),
         fields = contract.accounts.Global.fields;

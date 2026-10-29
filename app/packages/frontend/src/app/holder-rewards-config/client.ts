@@ -79,7 +79,7 @@ export function isHolderConfiguration(
   } else if (
     global.status !== "decoded" ||
     !integer(global.dataBytes) ||
-    global.dataBytes < 8 ||
+    global.dataBytes < contract.accounts.Global.minimumSize ||
     global.dataBytes > 65_536 ||
     !field(
       global.isHolderRewardEnabled,

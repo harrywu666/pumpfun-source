@@ -35,23 +35,27 @@ function width(type) {
   }
   throw new Error(`unsupported dynamic IDL type ${JSON.stringify(type)}`);
 }
-function layout(name, selected) {
+function layout(name, selected, minimumField) {
   const definition = types.get(name); assert.equal(definition?.kind, 'struct');
-  const fields = {}; let offset = 8;
+  const fields = {}; let offset = 8; let minimumSize;
   for (const field of definition.fields) {
+    if (field.name === minimumField) minimumSize = offset;
     const end = offset + width(field.type);
     if (selected.includes(field.name)) fields[field.name] = [offset, end];
     offset = end;
   }
+  if (minimumField) assert.ok(Number.isSafeInteger(minimumSize), `${name} minimum layout field`);
   assert.equal(Object.keys(fields).length, selected.length);
   const account = exactlyOne(idl.accounts.filter(account => account.name === name), `${name} account`);
-  return { size: offset, discriminator: account.discriminator, fields };
+  return { size: offset, ...(minimumField ? { minimumSize } : {}), discriminator: account.discriminator, fields };
 }
 const accounts = {
-  Global: layout('Global', ['holder_reward_claim_authority', 'is_holder_reward_enabled']),
+  // The published 4.3.1 source identifies the pre-configurable-fee layout as the oldest live Global.
+  Global: layout('Global', ['holder_reward_claim_authority', 'is_holder_reward_enabled'], 'creator_fee_configurable'),
   BondingCurve: layout('BondingCurve', ['creator', 'is_holder_reward']),
 };
 assert.equal(accounts.Global.size, sdk.GLOBAL_SIZE);
+assert.equal(accounts.Global.minimumSize, 1045);
 assert.equal(accounts.BondingCurve.size, sdk.BONDING_CURVE_SIZE);
 assert.equal(idl.address, sdk.PUMP_PROGRAM_ID.toBase58());
 const contract = { sdkVersion: '4.3.1', programId: idl.address, globalPda: sdk.GLOBAL_PDA.toBase58(), accounts };
