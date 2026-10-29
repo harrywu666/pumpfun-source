@@ -225,11 +225,24 @@ function Pagination({
   page,
   totalPages,
   onPage,
+  restoreFocus,
+  onFocusRestored,
 }: {
   page: number;
   totalPages: number;
   onPage: (page: number) => void;
+  restoreFocus: boolean;
+  onFocusRestored: () => void;
 }) {
+  const statusRef = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!restoreFocus) return;
+    const frame = requestAnimationFrame(() => {
+      statusRef.current?.focus();
+      onFocusRestored();
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [onFocusRestored, restoreFocus]);
   if (totalPages <= 1) return null;
   return (
     <nav className="leaderboard-pagination" aria-label="Leaderboard pages">
@@ -240,7 +253,11 @@ function Pagination({
       >
         Previous
       </button>
-      <span aria-live="polite">
+      <span
+        ref={statusRef}
+        tabIndex={restoreFocus ? -1 : undefined}
+        aria-live="polite"
+      >
         Page {page} of {totalPages}
       </span>
       <button
@@ -490,6 +507,7 @@ export default function LeaderboardClient() {
   const [loading, setLoading] = useState(true);
   const [retry, setRetry] = useState(0);
   const requestSequence = useRef(0);
+  const pageFocusPending = useRef(false);
 
   const apiQuery = useMemo(() => {
     const parameters = new URLSearchParams({ category });
@@ -582,8 +600,13 @@ export default function LeaderboardClient() {
 
   const setSearch = (nextQuery: string) =>
     updateQuery({ q: nextQuery || null }, true);
-  const setPage = (nextPage: number) =>
+  const setPage = (nextPage: number) => {
+    pageFocusPending.current = true;
     updateQuery({ page: String(nextPage) }, false);
+  };
+  const clearPageFocus = useCallback(() => {
+    pageFocusPending.current = false;
+  }, []);
 
   const lowerQuery = query.toLocaleLowerCase();
 
@@ -623,6 +646,8 @@ export default function LeaderboardClient() {
           page={visiblePage}
           totalPages={totalPages}
           onPage={setPage}
+          restoreFocus={pageFocusPending.current}
+          onFocusRestored={clearPageFocus}
         />
       </>
     ) : (
@@ -672,6 +697,8 @@ export default function LeaderboardClient() {
               page={data.page}
               totalPages={totalPages}
               onPage={setPage}
+              restoreFocus={pageFocusPending.current}
+              onFocusRestored={clearPageFocus}
             />
           </>
         )}
@@ -708,6 +735,8 @@ export default function LeaderboardClient() {
           page={visiblePage}
           totalPages={totalPages}
           onPage={setPage}
+          restoreFocus={pageFocusPending.current}
+          onFocusRestored={clearPageFocus}
         />
       </>
     ) : (
@@ -768,6 +797,8 @@ export default function LeaderboardClient() {
               page={visiblePage}
               totalPages={totalPages}
               onPage={setPage}
+              restoreFocus={pageFocusPending.current}
+              onFocusRestored={clearPageFocus}
             />
           </>
         ) : (
