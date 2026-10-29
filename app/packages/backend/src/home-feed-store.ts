@@ -1,5 +1,12 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import seedData from "./home-feed-seed.json" with { type: "json" };
+import {
+  HOME_FEED_MAX_PAGE,
+  HOME_FEED_NEWEST_PAGE_SIZE_MAX,
+  HOME_FEED_RANKED_PAGE_SIZE_MAX,
+  homeFeedInteger,
+  homeFeedPageStart,
+} from "./home-feed-pagination.js";
 
 export const HOME_FEED_DATA_SOURCE = "synthetic-home-feed-local-v1";
 export const HOME_FEED_SEED_CANONICAL_SHA256 =
@@ -656,9 +663,21 @@ export class HomeFeedStore {
   }
 
   ranked(request: RankedFeedRequest): RankedFeedResponse {
+    const pageNumber = homeFeedInteger(
+      request.page,
+      "page",
+      0,
+      HOME_FEED_MAX_PAGE,
+    );
+    const pageSize = homeFeedInteger(
+      request.pageSize,
+      "pageSize",
+      1,
+      HOME_FEED_RANKED_PAGE_SIZE_MAX,
+    );
     const selected = this.select(request.filters, false).sort(compareRanked);
     const context = contextHash(request.filters);
-    let start = request.page * request.pageSize;
+    let start = homeFeedPageStart(pageNumber, pageSize, selected.length);
     if (request.pageToken) {
       const cursor = decodeCursor(
         request.pageToken,
@@ -673,7 +692,8 @@ export class HomeFeedStore {
         throw new HomeFeedCursorError("rank cursor boundary is unavailable");
       start = index + 1;
     }
-    const page = selected.slice(start, start + request.pageSize);
+    const page =
+      start >= selected.length ? [] : selected.slice(start, start + pageSize);
     const response: RankedFeedResponse = { coins: page.map(projectCoin) };
     if (start + page.length < selected.length && page.length > 0) {
       response.nextPageToken = encodeCursor({
@@ -688,6 +708,12 @@ export class HomeFeedStore {
   }
 
   newest(request: NewFeedRequest): NewFeedResponse {
+    const pageSize = homeFeedInteger(
+      request.pageSize,
+      "pageSize",
+      1,
+      HOME_FEED_NEWEST_PAGE_SIZE_MAX,
+    );
     const selected = this.select(request.filters, true).sort(
       compareChronological,
     );
@@ -709,7 +735,8 @@ export class HomeFeedStore {
         );
       start = index + 1;
     }
-    const page = selected.slice(start, start + request.pageSize);
+    const page =
+      start >= selected.length ? [] : selected.slice(start, start + pageSize);
     const response: NewFeedResponse = {
       coins: page.map(projectCoin),
       headToken:

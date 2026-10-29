@@ -10,6 +10,13 @@ import {
   defaultHomeFeedStore,
   isWellFormedUnicode,
 } from "./home-feed-store.js";
+import {
+  HOME_FEED_MAX_PAGE,
+  HOME_FEED_NEWEST_PAGE_SIZE_DEFAULT,
+  HOME_FEED_NEWEST_PAGE_SIZE_MAX,
+  HOME_FEED_RANKED_PAGE_SIZE_DEFAULT,
+  HOME_FEED_RANKED_PAGE_SIZE_MAX,
+} from "./home-feed-pagination.js";
 import { errorBody } from "./users-routes.js";
 
 const DATA_SOURCE_HEADER = "X-Reconstruction-Data-Source";
@@ -280,8 +287,14 @@ export function registerHomeFeedRoutes(
     try {
       const query = request.query as Record<string, unknown>;
       failUnknownKeys(query, HOME_QUERY_KEYS);
-      const page = integer(query, "page", 0, Number.MAX_SAFE_INTEGER, 0);
-      const pageSize = integer(query, "pageSize", 1, 200, 150);
+      const page = integer(query, "page", 0, HOME_FEED_MAX_PAGE, 0);
+      const pageSize = integer(
+        query,
+        "pageSize",
+        1,
+        HOME_FEED_RANKED_PAGE_SIZE_MAX,
+        HOME_FEED_RANKED_PAGE_SIZE_DEFAULT,
+      );
       const pageToken = single(query, "pageToken");
       if (pageToken && pageToken.length > 256) {
         throw new HomeFeedRequestError(400, "CURSOR_TOO_LONG", "pageToken");
@@ -334,7 +347,13 @@ export function registerHomeFeedRoutes(
     try {
       const query = request.query as Record<string, unknown>;
       failUnknownKeys(query, NEW_QUERY_KEYS);
-      const pageSize = integer(query, "pageSize", 1, 50, 25);
+      const pageSize = integer(
+        query,
+        "pageSize",
+        1,
+        HOME_FEED_NEWEST_PAGE_SIZE_MAX,
+        HOME_FEED_NEWEST_PAGE_SIZE_DEFAULT,
+      );
       integer(query, "updatesLimit", 1, 10, 10);
       const pageToken = single(query, "pageToken");
       if (pageToken && pageToken.length > 512) {
