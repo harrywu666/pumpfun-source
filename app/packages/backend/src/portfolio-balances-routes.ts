@@ -8,6 +8,31 @@ export const PORTFOLIO_BALANCES_NATIVE_ROUTES = new Set([
   "POST /portfolio-summary/balances",
 ]);
 
+function hasSupportedJsonContentType(value: unknown): boolean {
+  if (typeof value !== "string") return false;
+  const [mediaType, ...parameters] = value.split(";");
+  if (mediaType.trim().toLowerCase() !== "application/json") return false;
+  let charsetSeen = false;
+  for (const parameter of parameters) {
+    const separator = parameter.indexOf("=");
+    if (
+      separator < 1 ||
+      parameter.slice(0, separator).trim().toLowerCase() !== "charset" ||
+      charsetSeen
+    )
+      return false;
+    charsetSeen = true;
+    let charset = parameter
+      .slice(separator + 1)
+      .trim()
+      .toLowerCase();
+    if (charset.startsWith('"') && charset.endsWith('"'))
+      charset = charset.slice(1, -1);
+    if (charset !== "utf-8") return false;
+  }
+  return true;
+}
+
 /** Developer API host semantics only; inherited key-shape gate still runs first. */
 export function registerPortfolioBalancesRoutes(
   app: FastifyInstance,
@@ -15,6 +40,10 @@ export function registerPortfolioBalancesRoutes(
 ): void {
   app.post("/v1/portfolio-summary/balances", async (request, reply) => {
     try {
+      if (!hasSupportedJsonContentType(request.headers["content-type"]))
+        return reply
+          .code(415)
+          .send({ statusCode: 415, error: "UNSUPPORTED_MEDIA_TYPE" });
       if (
         request.url.includes("?") &&
         [
