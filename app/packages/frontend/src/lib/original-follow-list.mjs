@@ -24,10 +24,14 @@ export function planFollowList(direction, userId, input, signal) {
 }
 
 export function normalizeFollowList(value) {
-  return Array.isArray(value) ? value.map((row) => ({ ...row,
-    address: row.address ?? '',
-    userId: row.user_id ?? row.userId ?? null,
-    kind: row.kind ?? 'person' })) : [];
+  return Array.isArray(value) ? value.map((row) => {
+    if (row === null || typeof row !== 'object' || Array.isArray(row))
+      throw new TypeError('Follow-list rows must be objects.');
+    return { ...row,
+      address: row.address ?? '',
+      userId: row.user_id ?? row.userId ?? null,
+      kind: row.kind ?? 'person' };
+  }) : [];
 }
 
 // The actual captured query callback calls the website client and normalizes

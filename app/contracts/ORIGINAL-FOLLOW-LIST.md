@@ -88,7 +88,7 @@ error decoding and retries remain outside this callback.
 | Enablement | Truthy subject and enabled-by-default option. The request callback has no additional userId guard; the pure plan retains this distinction. |
 | Cache tuple | `['follow-list', direction, userId, sort, searchTerm ?? '']`. No TanStack hashing/runtime claim follows from the tuple alone. |
 | Query policy | staleTime 30,000 ms; refetchInterval 60,000 ms; background interval false; window focus true. This unit does not recreate scheduling. |
-| Normalization | Non-array result becomes `[]`. Each row is spread; address defaults to empty, `user_id ?? userId ?? null` selects identity, and kind defaults to person. Defaults are nullish-only. |
+| Normalization | Non-array result becomes `[]`. Object rows are spread; address defaults to empty, `user_id ?? userId ?? null` selects identity, and kind defaults to person. Defaults are nullish-only. Null, arrays and primitive rows throw `TypeError` before defaults are applied. |
 | Local display | Ten rows per page, using array.slice. totalCount is fetched-array length; totalPages is its length divided by ten and rounded up. These are not remote graph counts. |
 
 **This is local pagination over one bounded fetch**, not a remote offset pager.
@@ -111,8 +111,15 @@ The source's quirks are retained rather than silently corrected:
   empty. This is the captured client normalization, even though the declaration
   calls the alias deprecated.
 
+The row-type guard is a bounded reconstruction defense, not a claim that the
+captured JavaScript parsed its declared response schema. Without it, object
+spread and nullish defaults turn a primitive or nested-array row into a blank
+"person" entry. The guard keeps the captured object-row fallbacks and preserves
+the non-array-to-empty behavior.
+
 Actual interaction outcomes still depend on missing callers and framework
-runtime. These facts do not establish a demonstrated production defect.
+runtime. The guard proves malformed-response handling, not that production
+served such a row.
 
 ## Website transport and declarations
 

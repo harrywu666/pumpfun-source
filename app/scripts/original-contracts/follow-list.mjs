@@ -192,7 +192,7 @@ export async function extractFollowList(root) {
     workflow: { module: 500056, export: 'Q', sharedFactory: source.provenance.sha256, source: hookFragment,
       operations, queryPolicy, queryCallback: queryCallbackFragment, plainFetchLimit: 1000, searchFetchLimit: 100, localPageSize: 10,
       totalCount: 'Length of fetched/normalized array, not remote graph count',
-      normalization: 'Object spread preserves fields; address??empty, user_id??userId??null, kind??person',
+      normalization: 'Object rows are spread with address??empty, user_id??userId??null, kind??person; non-object rows throw TypeError (bounded reconstruction guard)',
       searchSelection: 'searchTerm !== undefined, including empty string and null',
       queryKey: ['follow-list', 'direction', 'userId', 'sort(default followers)', 'searchTerm??empty'],
       pageIdentity: '`${userId}|${sort}|${searchTerm??empty}`; direction is absent',
@@ -209,6 +209,7 @@ export async function extractFollowList(root) {
       'Absent and empty/null search terms share cache/local identity despite selecting different requests; preserved as source behavior',
       'Changing direction keeps the same local listKey; TanStack hashing/scheduling and surrounding UI may affect observed outcomes and are not reconstructed',
       'Normalizer retention of unknown fields is original CLIENT behavior, not a developer-host privacy projection or safe backend response builder',
+      'The non-object row rejection is a bounded reconstruction guard, not a claim that the captured JavaScript enforced the declared response schema',
       'Read declarations retain optional viewer-relative fields; their descriptions are not runtime authorization policy',
       'The shared350989 factory also contains mutations and mutual-follower reads, which are outside this selected500056 workflow'] };
 }
