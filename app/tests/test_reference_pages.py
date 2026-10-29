@@ -3,7 +3,9 @@ import importlib.util
 import json
 import pathlib
 import sys
+import tempfile
 import unittest
+from unittest import mock
 
 
 APP_ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -90,6 +92,37 @@ class ReferencePageExtractionTests(unittest.TestCase):
         )
         with self.assertRaisesRegex(extractor.ExtractionError, "Duplicate section identity"):
             extractor.parse_document_bytes("privacy", source, html)
+
+    def test_failed_write_preserves_existing_artifact(self):
+        def write_partial_then_fail(
+            path, data, *, encoding=None, errors=None, newline=None
+        ):
+            with path.open(
+                "w", encoding=encoding, errors=errors, newline=newline
+            ) as stream:
+                stream.write(data[:11])
+            raise OSError("simulated write failure")
+
+        with tempfile.TemporaryDirectory() as directory:
+            output = pathlib.Path(directory) / "reference-pages.generated.json"
+            output.write_text("previous\n", encoding="utf-8")
+
+            with (
+                mock.patch.object(extractor, "OUTPUT_PATH", output),
+                mock.patch.object(extractor, "generate", return_value="replacement\n"),
+                mock.patch.object(
+                    extractor.Path, "write_text", new=write_partial_then_fail
+                ),
+                mock.patch.object(
+                    sys,
+                    "argv",
+                    ["extract-reference-pages.py", "--write"],
+                ),
+            ):
+                result = extractor.main()
+
+            self.assertEqual(result, 1)
+            self.assertEqual(output.read_text(encoding="utf-8"), "previous\n")
 
 
 if __name__ == "__main__":

@@ -6,8 +6,10 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import sys
+import tempfile
 import unicodedata
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
@@ -411,6 +413,29 @@ def generate() -> str:
     return json.dumps(output, ensure_ascii=False, indent=2) + "\n"
 
 
+def atomic_write_text(path: Path, text: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    existing_mode = path.stat().st_mode & 0o777 if path.exists() else None
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            dir=path.parent, prefix=f".{path.name}.", suffix=".tmp", delete=False
+        ) as stream:
+            temporary = Path(stream.name)
+        temporary.write_text(text, encoding="utf-8")
+        if existing_mode is not None:
+            temporary.chmod(existing_mode)
+        with temporary.open("rb") as stream:
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None:
+            try:
+                temporary.unlink()
+            except FileNotFoundError:
+                pass
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     mode = parser.add_mutually_exclusive_group(required=True)
@@ -421,8 +446,7 @@ def main() -> int:
     try:
         generated = generate()
         if args.write:
-            OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-            OUTPUT_PATH.write_text(generated, encoding="utf-8")
+            atomic_write_text(OUTPUT_PATH, generated)
         else:
             if not OUTPUT_PATH.is_file():
                 raise ExtractionError(f"Generated artifact is missing: {OUTPUT_PATH}")
