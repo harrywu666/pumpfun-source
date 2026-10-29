@@ -260,6 +260,17 @@ export class PayoutsStore {
     });
 
     if (
+      generatedAt !== null &&
+      facts.some(
+        (fact) =>
+          fact.status === "confirmed" &&
+          fact.paidAt !== null &&
+          fact.paidAt > generatedAt,
+      )
+    )
+      invalid("generatedAt predates confirmed payout");
+
+    if (
       !data.windows ||
       typeof data.windows !== "object" ||
       Array.isArray(data.windows)

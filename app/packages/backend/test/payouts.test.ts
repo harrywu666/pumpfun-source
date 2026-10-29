@@ -288,6 +288,21 @@ test("empty confirmed inventory is a real empty board, with supplied null genera
   }, data);
 });
 
+test("generatedAt cannot predate confirmed payouts included in the board", () => {
+  const data = dataset();
+  data.generatedAt = "2026-10-28T12:00:00.000Z";
+  assert.equal(
+    new PayoutsStore(data).leaderboard().generatedAt,
+    data.generatedAt,
+  );
+
+  data.generatedAt = "2026-10-28T11:59:59.999Z";
+  assert.throws(
+    () => new PayoutsStore(data),
+    /Invalid local payouts dataset: generatedAt/,
+  );
+});
+
 test("source and returned objects cannot mutate an already constructed board", () => {
   const data = dataset();
   const store = new PayoutsStore(data);
