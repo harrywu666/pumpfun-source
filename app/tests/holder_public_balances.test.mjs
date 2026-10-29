@@ -225,7 +225,7 @@ test("real loopback HTTP preserves fixed URL/method and supports controlled serv
 test("published derivation and existing server RPC boundary remain unchanged", async () => {
   for (const [path, expected] of Object.entries({
     "src/app/api/portfolio/route.ts":
-      "3d4bae26bc0a0a5dbfb47376d264ab3980ef0550a403114c1e76104a2ba216bd",
+      "1ca52ec7988c68db52ed4cf75a951189789e1cdf2ca3499755c678fab9fa8e9f",
     "src/app/portfolio/rpc.ts":
       "600e4a05c569dec818662b4be38ea513ad20a4b4bb7fb6bc1783a088c569259f",
     "src/app/portfolio/types.ts":

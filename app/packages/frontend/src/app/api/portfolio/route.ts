@@ -38,7 +38,10 @@ function statusFor(error: PortfolioRpcError): number {
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const addresses = url.searchParams.getAll("address");
-  if (addresses.length !== 1) {
+  if (
+    addresses.length !== 1 ||
+    [...url.searchParams.keys()].some((key) => key !== "address")
+  ) {
     return failure(
       400,
       "INVALID_ADDRESS",
