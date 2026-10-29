@@ -84,7 +84,7 @@ class ParallelReportPublicationTests(unittest.TestCase):
     def test_failed_final_write_never_publishes_partial_json(self):
         output = self.root / 'reports/report.json'
 
-        with mock.patch.object(validator.os, 'fsync', side_effect=OSError(
+        with mock.patch('os.fsync', side_effect=OSError(
                 'injected durability failure')):
             with self.assertRaisesRegex(OSError, 'injected durability failure'):
                 self.run_validator(output)
