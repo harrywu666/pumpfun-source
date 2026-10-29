@@ -5,6 +5,7 @@ import { jsx, jsxs } from "react/jsx-runtime";
 import {
   createCountdownModule,
   useMemoCache,
+  type CountdownTarget,
   type CompetitionTiming,
 } from "./original-countdown.mjs";
 
@@ -35,14 +36,56 @@ const { Countdown, selectTarget } = createCountdownModule({
   clearInterval: globalThis.clearInterval.bind(globalThis),
 });
 
+const MAX_TIMEOUT_MS = 2_147_483_647;
+
+function targetAt(
+  competition: CompetitionTiming,
+  nowMs: number,
+): CountdownTarget | null {
+  const target = selectTarget(competition);
+  if (!target || nowMs < target.atMs) return target;
+  if (target.kind === "starts") {
+    const endsAt = competition.endsAt
+      ? Date.parse(competition.endsAt)
+      : Number.NaN;
+    if (Number.isFinite(endsAt) && nowMs < endsAt)
+      return { kind: "ends", atMs: endsAt };
+  }
+  return null;
+}
+
 /** Local card adapter: pass documented DTO fields to the actual source selector. */
 export function CompetitionCountdown({
   competition,
 }: {
   competition?: CompetitionTiming | null;
 }) {
-  if (!competition) return null;
-  const target = selectTarget(competition);
+  const [target, setTarget] = useState<CountdownTarget | null>(() =>
+    competition ? selectTarget(competition) : null,
+  );
+
+  useEffect(() => {
+    if (!competition) {
+      setTarget(null);
+      return;
+    }
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const schedule = () => {
+      const nowMs = Date.now();
+      const next = targetAt(competition, nowMs);
+      setTarget(next);
+      if (!next) return;
+      timer = setTimeout(
+        schedule,
+        Math.min(Math.max(0, next.atMs - nowMs), MAX_TIMEOUT_MS),
+      );
+    };
+    schedule();
+    return () => {
+      if (timer !== undefined) clearTimeout(timer);
+    };
+  }, [competition]);
+
   if (!target) return null;
   return (
     <div className="mb-4">
