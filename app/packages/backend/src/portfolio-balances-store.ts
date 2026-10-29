@@ -2,6 +2,8 @@
 import { closeSync, constants, fstatSync, openSync, readSync } from "node:fs";
 
 export const balanceWalletPattern = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
+const base58Alphabet =
+  "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 export interface PublicBalanceFacts {
   totalValueUsd: number | null;
   solPriceUsd: number | null;
@@ -18,6 +20,20 @@ export interface BalanceBatch {
 }
 export class BalanceBatchQueryError extends Error {}
 
+function isSolanaWallet(value: string): boolean {
+  if (!balanceWalletPattern.test(value)) return false;
+  let leadingZeroBytes = 0;
+  while (value[leadingZeroBytes] === "1") leadingZeroBytes++;
+  let magnitude = 0n;
+  for (let index = leadingZeroBytes; index < value.length; index++)
+    magnitude = magnitude * 58n + BigInt(base58Alphabet.indexOf(value[index]));
+  let magnitudeBytes = 0;
+  while (magnitude > 0n) {
+    magnitude >>= 8n;
+    magnitudeBytes++;
+  }
+  return leadingZeroBytes + magnitudeBytes === 32;
+}
 function invalid(message: string): never {
   throw new Error(`Invalid balance materialization: ${message}`);
 }
@@ -75,7 +91,7 @@ export class PortfolioBalancesStore {
       object(entry, ["wallet", "balance"]);
       if (
         typeof entry.wallet !== "string" ||
-        !balanceWalletPattern.test(entry.wallet) ||
+        !isSolanaWallet(entry.wallet) ||
         this.balances.has(entry.wallet)
       )
         invalid("wallet identity");
@@ -118,8 +134,7 @@ export class PortfolioBalancesStore {
       wallets.length < 1 ||
       wallets.length > 50 ||
       ![...wallets].every(
-        (wallet) =>
-          typeof wallet === "string" && balanceWalletPattern.test(wallet),
+        (wallet) => typeof wallet === "string" && isSolanaWallet(wallet),
       )
     )
       throw new BalanceBatchQueryError();

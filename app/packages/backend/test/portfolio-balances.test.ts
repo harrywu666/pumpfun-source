@@ -20,9 +20,9 @@ import {
 
 // Public-format synthetic identifiers; no wallet connection or ownership claim.
 const A = "1".repeat(32),
-  B = "2".repeat(32),
-  C = "3".repeat(32),
-  UNKNOWN = "4".repeat(32);
+  B = "4vJ9JU1bJJE96FWSJKvHsmmFADCg4gpZQff4P3bkLKi",
+  C = "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+  UNKNOWN = "CktRuQ2mttgRGkXJtyksdKHjUdc2C4TgDzyB98oEzy8";
 const headers = { authorization: `Bearer pf_live_${"A".repeat(49)}` };
 const spec = JSON.parse(
   readFileSync(
@@ -97,7 +97,7 @@ test("caller input and result mutation cannot change the fixed snapshot", () => 
   assert.equal(store.batch([A]).wallets[A]!.totalValueUsd, 12.5);
 });
 
-test("programmatic batch validation enforces the documented 1–50/regex boundary", () => {
+test("programmatic batch validation enforces the 1–50/Solana wallet boundary", () => {
   const store = new PortfolioBalancesStore(dataset());
   for (const value of [
     [],

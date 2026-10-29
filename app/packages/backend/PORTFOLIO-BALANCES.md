@@ -53,8 +53,9 @@ The public API host never establishes viewer ownership:
 - Private holdings/perp-cash fields are rejected at materialization admission;
   they are not silently stored or passed through.
 - Duplicate requested wallets collapse to one record key. Case and spelling
-  stay exact. Validation uses the declared base58-character/length pattern;
-  this is not a private-key, ownership or on-chain-account validation.
+  stay exact. Validation checks the base58 alphabet, string bounds and exact
+  32-byte decoded key width; this is not a private-key, ownership or
+  on-chain-account validation.
 
 The explicit file import happens before startup through
 `PORTFOLIO_BALANCES_FILE`. It accepts a regular UTF-8 JSON file up to 16 MiB and
