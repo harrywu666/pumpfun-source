@@ -144,7 +144,8 @@ function number(
 ): number | undefined {
   const raw = single(query, field);
   if (raw === undefined) return undefined;
-  if (!/^(?:0|[1-9]\d*)(?:\.\d+)?$/u.test(raw)) {
+  // `type: number` includes JSON-number exponent notation (for example 1e-7).
+  if (!/^(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/u.test(raw)) {
     throw new HomeFeedRequestError(400, "INVALID_NUMBER", field);
   }
   const value = Number(raw);
