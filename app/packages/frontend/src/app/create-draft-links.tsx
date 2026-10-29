@@ -87,6 +87,25 @@ export function CreateDraftLinks({
         }}
         onKeyDown={(event) => {
           if (event.key === "Escape") event.stopPropagation();
+          if (event.key !== "Tab") return;
+          const controls = Array.from(
+            event.currentTarget.querySelectorAll<HTMLElement>(
+              'input:not([disabled]), button:not([disabled]), a[href], [tabindex="0"]',
+            ),
+          ).filter(
+            (control) =>
+              control.tabIndex >= 0 && control.getClientRects().length > 0,
+          );
+          const first = controls[0];
+          const last = controls.at(-1);
+          // Native modal inertness can still let Tab leave the dialog for browser chrome.
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last?.focus();
+          } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first?.focus();
+          }
         }}
         onClick={(event) => {
           if (event.target === event.currentTarget)
