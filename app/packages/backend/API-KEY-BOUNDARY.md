@@ -52,6 +52,11 @@ key candidates receive `API_KEY_INVALID`. Case-insensitive Bearer parsing and
 its existing whitespace handling are unchanged. Unknown routes and diagnostic
 routes remain outside this specification-registered `/v1` gate.
 
+The gate runs in Fastify's `onRequest` lifecycle. Therefore an unauthenticated
+documented `POST` receives the same credential envelope even when its body is
+empty, malformed JSON, or sent with an unsupported `Content-Type`. Body
+parsing still runs normally for a request that presents a well-shaped key.
+
 **A well-shaped key is still not a verified credential.** Key issuance,
 checksum validation, ownership, scopes, revocation, rate limits, session
 credentials, CORS, and live upstream parity remain unimplemented or unqualified.

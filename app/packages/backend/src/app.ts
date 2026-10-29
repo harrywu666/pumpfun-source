@@ -399,7 +399,8 @@ export function buildApp(fixtures: Fixture[] = [], opts: BuildAppOptions = {}) {
     (opts.userStore ? new LeaderboardStore(undefined, store) : defaultLeaderboardStore);
   registerHomeFeedRoutes(app, opts.homeFeedStore ?? defaultHomeFeedStore);
   app.register(async (native) => {
-    native.addHook("preHandler", apiKeyGate);
+    // Authenticate before Fastify parses a documented POST body.
+    native.addHook("onRequest", apiKeyGate);
     if (opts.portfolioBalancesStore) registerPortfolioBalancesRoutes(native, opts.portfolioBalancesStore);
     registerUserRoutes(native, store);
     if (opts.userStore) registerSearchResolveRoutes(native, store);
@@ -434,8 +435,8 @@ export function buildApp(fixtures: Fixture[] = [], opts: BuildAppOptions = {}) {
         method: method.toUpperCase() as "GET",
         url: "/v1" + path.replace(/\{([^}]+)\}/g, ":$1"),
         // Every documented operation declares the global bearer requirement;
-        // the gate runs before replay so a fixture cannot bypass it.
-        preHandler: apiKeyGate,
+        // the gate runs before body parsing and replay so neither can bypass it.
+        onRequest: apiKeyGate,
         handler: replay,
       });
     }
