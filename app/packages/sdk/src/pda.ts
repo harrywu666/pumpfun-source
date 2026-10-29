@@ -199,10 +199,21 @@ export const ammCreatorVaultPda = (creator: PublicKey): PublicKey => {
   )[0];
 };
 
+const MAX_SOCIAL_FEE_USER_ID_BYTES = 20;
+
 export const socialFeePda = (userId: string, platform: number): PublicKey => {
+  const userIdBytes = Buffer.from(userId);
+  if (userIdBytes.length > MAX_SOCIAL_FEE_USER_ID_BYTES) {
+    throw new Error("socialFeePda: userId must be at most 20 UTF-8 bytes");
+  }
+  if (!Number.isInteger(platform) || platform < 0 || platform > 255) {
+    throw new RangeError(
+      "socialFeePda: platform must be an integer from 0 to 255",
+    );
+  }
   return pumpFeePda([
     Buffer.from("social-fee-pda"),
-    Buffer.from(userId),
+    userIdBytes,
     Buffer.from([platform]),
   ]);
 };
