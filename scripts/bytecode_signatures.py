@@ -14,6 +14,7 @@ Usage:
     python3 scripts/bytecode_signatures.py --output research/bytecode-signatures-20261028
 """
 import argparse
+import bisect
 import collections
 import hashlib
 import json
@@ -59,6 +60,65 @@ SYSCALL_NAMES = {
     0xe7ce47dc: "sol_get_rent_sysvar",
     0xcccd2005: "sol_remaining_compute_units",
 }
+
+# Callsites we classify. Deployed SBF emits two encodings:
+#   * syscall form: `0x85 0x00` with the 32-bit syscall hash in imm
+#   * relocation form: `0x85 0x10` with imm -1 plus a type-10 (.rel.dyn)
+#     entry whose symbol names the syscall
+# The captured builds use the relocation form, so detection must consult
+# `elf.relocations` instead of relying on the imm hash alone.
+CPI_SYSCALL_NAMES = {
+    0xd56b5fe9: "sol_invoke_signed_c",
+    0xe4042040: "sol_invoke_signed_rust",
+}
+CPI_SYMBOLS = frozenset(CPI_SYSCALL_NAMES.values())
+MEMCPY_SYSCALL_NAMES = {0xa22b9c85: "sol_memcpy_"}
+MEMCPY_SYMBOLS = frozenset(MEMCPY_SYSCALL_NAMES.values())
+R_BPF_64_32 = 10
+
+
+def _relocated_call_sites(elf):
+    """Cached, offset-sorted list of relocation-form syscall sites."""
+    cached = getattr(elf, "_relocated_call_sites", None)
+    if cached is not None:
+        return cached
+    b = elf.b
+    sites = []
+    for at, reloc in sorted(getattr(elf, "relocations", {}).items()):
+        if reloc.get("type") != R_BPF_64_32:
+            continue
+        symbol = reloc.get("symbol", "")
+        # Type-10 relocations also patch lddw loads; only `call` is a syscall.
+        if not symbol or not (0 <= at < len(b)) or b[at] != 0x85:
+            continue
+        sites.append((at, symbol))
+    sites.sort()
+    elf._relocated_call_sites = sites
+    return sites
+
+
+def relocation_calls(elf, start, end, symbols):
+    """Relocation-form syscall callsites inside [start, end)."""
+    sites = _relocated_call_sites(elf)
+    lo = bisect.bisect_left(sites, (start,))
+    found = []
+    for at, symbol in sites[lo:]:
+        if at >= end:
+            break
+        if symbol in symbols:
+            found.append({"offset": at - start, "symbol": symbol})
+    return found
+
+
+def _setup_stores(b, start, offset):
+    """Count store instructions in the 200 bytes preceding a callsite."""
+    setup_instrs = 0
+    scan = offset - 8
+    while scan >= start and offset - scan < 200:
+        if b[scan] in (0x63, 0x6b, 0x73, 0x7b):  # stx variants
+            setup_instrs += 1
+        scan -= 8
+    return setup_instrs
 
 
 def extract_opcode_ngrams(elf, start, end, n=3):
@@ -123,25 +183,34 @@ def detect_cpi_patterns(elf, start, end):
     1. Setting up AccountInfo array
     2. Setting up instruction data
     3. Calling sol_invoke_signed_rust or sol_invoke_signed_c
+
+    Both the relocation form and the legacy syscall form are counted, keyed by
+    callsite offset so one callsite can never be reported twice.
     """
     b = elf.b
     patterns = []
+    seen = set()
+
+    for site in relocation_calls(elf, start, end, CPI_SYMBOLS):
+        offset = start + site["offset"]
+        seen.add(offset)
+        patterns.append({
+            "offset": site["offset"],
+            "syscall": site["symbol"],
+            "form": "relocation",
+            "setup_stores": _setup_stores(b, start, offset),
+        })
+
     for offset in range(start, end, 8):
         if b[offset] == 0x85 and b[offset + 1] == 0x00:
             uimm = struct.unpack_from("<I", b, offset + 4)[0]
-            if uimm in (0xd56b5fe9, 0xe4042040):
+            if uimm in CPI_SYSCALL_NAMES and offset not in seen:
                 name = SYSCALL_NAMES.get(uimm, "?")
-                # Look backwards for setup pattern
-                setup_instrs = 0
-                scan = offset - 8
-                while scan >= start and offset - scan < 200:
-                    if b[scan] in (0x63, 0x6b, 0x73, 0x7b):  # stx variants
-                        setup_instrs += 1
-                    scan -= 8
                 patterns.append({
                     "offset": offset - start,
                     "syscall": name,
-                    "setup_stores": setup_instrs,
+                    "form": "syscall",
+                    "setup_stores": _setup_stores(b, start, offset),
                 })
     return patterns
 
@@ -177,12 +246,20 @@ def detect_serialization_patterns(elf, start, end):
     - Sequential stx instructions writing to a buffer
     - memcpy calls for larger fields
     - Size calculation before allocation
+
+    memcpy callsites are counted from type-10 relocations plus the legacy
+    syscall form, deduplicated by offset.
     """
     b = elf.b
     sequential_stores = 0
     max_sequential = 0
     current_run = 0
     memcpy_count = 0
+    memcpy_offsets = set()
+
+    for site in relocation_calls(elf, start, end, MEMCPY_SYMBOLS):
+        memcpy_count += 1
+        memcpy_offsets.add(start + site["offset"])
 
     for offset in range(start, end, 8):
         if b[offset] in (0x63, 0x6b, 0x73, 0x7b):  # stx
@@ -193,7 +270,7 @@ def detect_serialization_patterns(elf, start, end):
             current_run = 0
         if b[offset] == 0x85 and b[offset + 1] == 0x00:
             uimm = struct.unpack_from("<I", b, offset + 4)[0]
-            if uimm == 0xa22b9c85:  # sol_memcpy_
+            if uimm in MEMCPY_SYSCALL_NAMES and offset not in memcpy_offsets:
                 memcpy_count += 1
 
     return {
