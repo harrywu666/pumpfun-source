@@ -8,21 +8,25 @@ import {
 
 export const runtime = "nodejs";
 
+function invalidQuery(error: unknown) {
+  return Response.json(
+    {
+      code: "INVALID_GO_QUERY",
+      message:
+        error instanceof GoQueryError
+          ? error.message
+          : "The GO query is invalid",
+    },
+    { status: 400 },
+  );
+}
+
 export async function GET(request: NextRequest) {
   let query;
   try {
     query = parseGoQuery(request.nextUrl.searchParams);
   } catch (error) {
-    return Response.json(
-      {
-        code: "INVALID_GO_QUERY",
-        message:
-          error instanceof GoQueryError
-            ? error.message
-            : "The GO query is invalid",
-      },
-      { status: 400 },
-    );
+    return invalidQuery(error);
   }
 
   const evidence = await loadGoEvidence();
@@ -37,7 +41,15 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  return Response.json(queryArchivedBounties(evidence.snapshot, query), {
+  let page;
+  try {
+    page = queryArchivedBounties(evidence.snapshot, query);
+  } catch (error) {
+    if (error instanceof GoQueryError) return invalidQuery(error);
+    throw error;
+  }
+
+  return Response.json(page, {
     headers: {
       "Cache-Control": "no-store",
       "X-Pump-Data-Source": "archived-go-html",

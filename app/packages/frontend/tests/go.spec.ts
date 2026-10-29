@@ -118,6 +118,21 @@ test("invalid URL and API parameters fail safely", async ({
   const response = await request.get("/api/go-bounties?cursor=c1");
   expect(response.status()).toBe(400);
   expect(await response.json()).toMatchObject({ code: "INVALID_GO_QUERY" });
+
+  for (const cursor of ["c00", "c024", "c96"]) {
+    await page.goto(`/go?cursor=${cursor}`);
+    await expect(page.getByTestId("go-query-error")).toContainText(
+      "GO cursor rejected",
+    );
+    await expect(page.getByTestId("go-bounty-card")).toHaveCount(0);
+    const invalidCursor = await request.get(
+      `/api/go-bounties?cursor=${cursor}`,
+    );
+    expect(invalidCursor.status()).toBe(400);
+    expect(await invalidCursor.json()).toMatchObject({
+      code: "INVALID_GO_QUERY",
+    });
+  }
 });
 
 test("network and malformed archive responses expose retryable fail-closed states", async ({

@@ -80,6 +80,8 @@ test("bounds and canonicalizes public query state", () => {
     "sort=unknown",
     "order=random",
     "cursor=c1",
+    "cursor=c00",
+    "cursor=c024",
     "q=a&q=b",
     "remote=https://example.com",
   ]) {
@@ -93,8 +95,13 @@ test("bounds and canonicalizes public query state", () => {
     new URLSearchParams("q=safe&status=LIVE&remote=x"),
   );
   assert.equal(normalized.ignoredInvalidState, true);
+  assert.equal(normalized.invalidCursor, false);
   assert.equal(normalized.query.q, "safe");
   assert.equal(normalized.query.status, "ALL");
+  const rejectedCursor = normalizeGoQuery(new URLSearchParams("cursor=c00"));
+  assert.equal(rejectedCursor.ignoredInvalidState, true);
+  assert.equal(rejectedCursor.invalidCursor, true);
+  assert.equal(rejectedCursor.query.cursor, undefined);
 });
 
 test("search, validated sorting and cursor pagination are deterministic", async () => {
@@ -129,6 +136,23 @@ test("search, validated sorting and cursor pagination are deterministic", async 
   assert.deepEqual(
     searched.items.map((item) => item.taskId),
     [first.items[0].taskId],
+  );
+  assert.throws(
+    () =>
+      queryArchivedBounties(value, {
+        ...base,
+        cursor: "c96",
+      }),
+    GoQueryError,
+  );
+  assert.throws(
+    () =>
+      queryArchivedBounties(value, {
+        ...base,
+        q: first.items[0].taskId,
+        cursor: "c24",
+      }),
+    GoQueryError,
   );
 });
 

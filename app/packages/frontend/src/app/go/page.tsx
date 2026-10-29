@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { loadGoEvidence } from "./evidence";
 import GoExplorer from "./go-explorer";
-import { normalizeGoQuery, queryArchivedBounties } from "./go-data";
+import {
+  GoQueryError,
+  normalizeGoQuery,
+  queryArchivedBounties,
+  type GoPageResult,
+} from "./go-data";
 import "./go.css";
 
 export const metadata: Metadata = {
@@ -39,6 +45,16 @@ function ExplorerFallback() {
 export default async function GoPage({ searchParams }: GoPageProps) {
   const evidence = await loadGoEvidence();
   const normalized = normalizeGoQuery(toSearchParams(await searchParams));
+  let rejectedCursor = normalized.invalidCursor;
+  let initialPage: GoPageResult | undefined;
+  if (evidence.ok && !rejectedCursor) {
+    try {
+      initialPage = queryArchivedBounties(evidence.snapshot, normalized.query);
+    } catch (error) {
+      if (!(error instanceof GoQueryError)) throw error;
+      rejectedCursor = true;
+    }
+  }
 
   return (
     <section className="go-page" aria-labelledby="go-title">
@@ -54,7 +70,7 @@ export default async function GoPage({ searchParams }: GoPageProps) {
         <span className="go-boundary-badge">No wallet or payouts</span>
       </header>
 
-      {evidence.ok ? (
+      {evidence.ok && !rejectedCursor && initialPage ? (
         <>
           <aside
             className="go-snapshot-note"
@@ -73,10 +89,7 @@ export default async function GoPage({ searchParams }: GoPageProps) {
           </aside>
           <Suspense fallback={<ExplorerFallback />}>
             <GoExplorer
-              initialPage={queryArchivedBounties(
-                evidence.snapshot,
-                normalized.query,
-              )}
+              initialPage={initialPage}
               initialQuery={normalized.query}
               ignoredInvalidState={normalized.ignoredInvalidState}
             />
@@ -87,6 +100,22 @@ export default async function GoPage({ searchParams }: GoPageProps) {
             API, wallet, submission, funding or payout action is enabled.
           </footer>
         </>
+      ) : evidence.ok ? (
+        <section
+          className="go-failure"
+          role="alert"
+          data-testid="go-query-error"
+        >
+          <p className="go-kicker">Rejected query state</p>
+          <h2>GO cursor rejected</h2>
+          <p>
+            The cursor is not canonical or is outside this result set. No
+            first-page fallback was rendered.
+          </p>
+          <Link className="go-primary" href="/go">
+            Return to first page
+          </Link>
+        </section>
       ) : (
         <section
           className="go-failure"

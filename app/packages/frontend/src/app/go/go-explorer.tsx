@@ -19,6 +19,14 @@ import type {
   PublicPhase,
 } from "./go-data";
 
+const canonicalGoCursorPattern = /^c(0|[1-9]\d*)$/u;
+
+function validCursor(cursor: string): boolean {
+  if (!canonicalGoCursorPattern.test(cursor)) return false;
+  const offset = Number.parseInt(cursor.slice(1), 10);
+  return Number.isSafeInteger(offset) && offset % 24 === 0;
+}
+
 const phases: ReadonlyArray<{ value: GoQuery["status"]; label: string }> = [
   { value: "ALL", label: "All" },
   { value: "OPEN", label: "Open at capture" },
@@ -202,11 +210,7 @@ export default function GoExplorer({
     rawOrder === "asc" || rawOrder === "desc" ? rawOrder : initialQuery.order;
   const rawCursor = searchParams.get("cursor") ?? undefined;
   const cursor =
-    rawCursor &&
-    /^c\d{1,4}$/u.test(rawCursor) &&
-    Number.parseInt(rawCursor.slice(1), 10) % 24 === 0
-      ? rawCursor
-      : initialQuery.cursor;
+    rawCursor && validCursor(rawCursor) ? rawCursor : initialQuery.cursor;
   const rawTask = searchParams.get("task") ?? undefined;
   const selectedTask =
     rawTask &&

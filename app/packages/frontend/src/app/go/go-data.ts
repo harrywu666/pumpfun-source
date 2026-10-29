@@ -15,7 +15,7 @@ const SOL_MINT = "So11111111111111111111111111111111111111112";
 const uuidPattern =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 const atomicPattern = /^\d{1,80}$/u;
-const cursorPattern = /^c(\d{1,4})$/u;
+const canonicalGoCursorPattern = /^c(0|[1-9]\d*)$/u;
 const capturedBountyPools = new Set(["bounties", "paid-out", "big"]);
 
 const bountyStatuses = new Set([
@@ -110,6 +110,15 @@ export class GoQueryError extends Error {
 
 function isRecord(value: unknown): value is UnknownRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function parseGoCursorOffset(value: string): number | undefined {
+  const match = canonicalGoCursorPattern.exec(value);
+  if (!match) return undefined;
+  const offset = Number.parseInt(match[1], 10);
+  return Number.isSafeInteger(offset) && offset % GO_PAGE_SIZE === 0
+    ? offset
+    : undefined;
 }
 
 function requireString(
@@ -510,12 +519,8 @@ export function parseGoQuery(parameters: URLSearchParams): GoQuery {
     throw new GoQueryError("order is invalid");
   }
   const cursor = singleParameter(parameters, "cursor");
-  if (cursor !== undefined) {
-    const match = cursorPattern.exec(cursor);
-    if (!match || Number.parseInt(match[1], 10) % GO_PAGE_SIZE !== 0) {
-      throw new GoQueryError("cursor is invalid");
-    }
-  }
+  if (cursor !== undefined && parseGoCursorOffset(cursor) === undefined)
+    throw new GoQueryError("cursor is invalid");
   const task = singleParameter(parameters, "task");
   if (task !== undefined && !uuidPattern.test(task)) {
     throw new GoQueryError("task is invalid");
@@ -533,9 +538,14 @@ export function parseGoQuery(parameters: URLSearchParams): GoQuery {
 export function normalizeGoQuery(parameters: URLSearchParams): {
   query: GoQuery;
   ignoredInvalidState: boolean;
+  invalidCursor: boolean;
 } {
   try {
-    return { query: parseGoQuery(parameters), ignoredInvalidState: false };
+    return {
+      query: parseGoQuery(parameters),
+      ignoredInvalidState: false,
+      invalidCursor: false,
+    };
   } catch {
     const safe = new URLSearchParams();
     const q = parameters.get("q");
@@ -550,15 +560,20 @@ export function normalizeGoQuery(parameters: URLSearchParams): {
     if (goSortFields.includes(sort as GoSortField)) safe.set("sort", sort!);
     const order = parameters.get("order");
     if (order === "asc" || order === "desc") safe.set("order", order);
-    const cursor = parameters.get("cursor");
-    if (cursor !== null) {
-      const match = cursorPattern.exec(cursor);
-      if (match && Number.parseInt(match[1], 10) % GO_PAGE_SIZE === 0)
-        safe.set("cursor", cursor);
-    }
+    const cursorValues = parameters.getAll("cursor");
+    const invalidCursor =
+      cursorValues.length > 1 ||
+      (cursorValues.length === 1 &&
+        parseGoCursorOffset(cursorValues[0]) === undefined);
+    if (cursorValues.length === 1 && !invalidCursor)
+      safe.set("cursor", cursorValues[0]);
     const task = parameters.get("task");
     if (task !== null && uuidPattern.test(task)) safe.set("task", task);
-    return { query: parseGoQuery(safe), ignoredInvalidState: true };
+    return {
+      query: parseGoQuery(safe),
+      ignoredInvalidState: true,
+      invalidCursor,
+    };
   }
 }
 
@@ -616,16 +631,10 @@ export function queryArchivedBounties(
       : result;
   });
 
-  const rawOffset = query.cursor
-    ? Number.parseInt(query.cursor.slice(1), 10)
-    : 0;
   const offset =
-    Number.isSafeInteger(rawOffset) &&
-    rawOffset >= 0 &&
-    rawOffset % GO_PAGE_SIZE === 0 &&
-    rawOffset < Math.max(sorted.length, 1)
-      ? rawOffset
-      : 0;
+    query.cursor === undefined ? 0 : parseGoCursorOffset(query.cursor);
+  if (offset === undefined || offset >= Math.max(sorted.length, 1))
+    throw new GoQueryError("cursor is invalid");
   const nextOffset = offset + GO_PAGE_SIZE;
   const previousOffset = Math.max(0, offset - GO_PAGE_SIZE);
 
