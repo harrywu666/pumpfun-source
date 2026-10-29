@@ -141,13 +141,11 @@ export function feesForQuoteMint({
     return calculateFeeTier({ feeTiers: feeConfig.feeTiers, marketCap });
   }
   if (isStableQuoteMint(quoteMint)) {
-    // An empty schedule is a program invariant violation on-chain; a FeeConfig account written
-    // before the field existed decodes with [] and was only ever charged `feeTiers`.
+    if (feeConfig.stableFeeTiers.length === 0) {
+      throw new Error("Stable fee tiers cannot be empty.");
+    }
     return calculateFeeTier({
-      feeTiers:
-        feeConfig.stableFeeTiers.length > 0
-          ? feeConfig.stableFeeTiers
-          : feeConfig.feeTiers,
+      feeTiers: feeConfig.stableFeeTiers,
       marketCap,
     });
   }
