@@ -154,6 +154,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+function isPositiveSafeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 1;
+}
+
 function isSource(value: unknown): value is DataSource {
   return (
     isRecord(value) &&
@@ -249,10 +253,9 @@ function isCompetitionSummary(value: unknown): value is CompetitionSummary {
     value.prizes.every(
       (prize) =>
         isRecord(prize) &&
-        [prize.rankFrom, prize.rankTo].every(
-          (rank) =>
-            typeof rank === "number" && Number.isFinite(rank) && rank >= 0,
-        ) &&
+        isPositiveSafeInteger(prize.rankFrom) &&
+        isPositiveSafeInteger(prize.rankTo) &&
+        prize.rankTo >= prize.rankFrom &&
         typeof prize.amount === "string" &&
         prize.amount.length <= 200,
     ) &&
