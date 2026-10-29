@@ -249,6 +249,36 @@ test("blocked consent storage still permits cookie-only Continue", async ({
   ).toBe("true");
 });
 
+test("cookie acceptance reaches another tab when local storage writes fail", async ({
+  page,
+  context,
+  baseURL,
+}) => {
+  await page.goto(baseURL!);
+  await expect(overlay(page)).toBeVisible();
+
+  const accepting = await context.newPage();
+  await accepting.addInitScript(() => {
+    const set = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      if (["show-how-it-works", "user-tos-accepted-date"].includes(key))
+        throw new DOMException("quota exhausted", "QuotaExceededError");
+      return set.call(this, key, value);
+    };
+  });
+  await accepting.goto(baseURL!);
+  await expect(overlay(accepting)).toBeVisible();
+  await accepting
+    .getByRole("dialog", { name: "Welcome to Pump.fun!" })
+    .getByRole("button", { name: "Continue", exact: true })
+    .click();
+  await expect(overlay(accepting)).toHaveCount(0);
+
+  await page.bringToFront();
+  await expect(overlay(page)).toHaveCount(0);
+  await accepting.close();
+});
+
 test("the modal repairs removed shell inertness while open", async ({
   page,
 }) => {

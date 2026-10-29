@@ -19,6 +19,19 @@ import {
   type ClickwrapEnvironment,
 } from "./clickwrap";
 const subscribers = new Set<() => void>();
+let acceptedChannel: BroadcastChannel | null = null;
+function notifySubscribers() {
+  for (const listener of subscribers) listener();
+}
+function ensureAcceptedChannel() {
+  if (acceptedChannel || typeof BroadcastChannel === "undefined") return;
+  try {
+    acceptedChannel = new BroadcastChannel(CLICKWRAP_ACCEPTED_EVENT);
+    acceptedChannel.addEventListener("message", notifySubscribers);
+  } catch {
+    acceptedChannel = null;
+  }
+}
 function environment(): ClickwrapEnvironment {
   return {
     getCookie: () => document.cookie,
@@ -29,17 +42,33 @@ function environment(): ClickwrapEnvironment {
     setItem: (key, value) => localStorage.setItem(key, value),
     now: () => new Date(),
     notifyAccepted: () => {
-      for (const listener of subscribers) listener();
+      notifySubscribers();
       window.dispatchEvent(new Event(CLICKWRAP_ACCEPTED_EVENT));
+      try {
+        acceptedChannel?.postMessage(null);
+      } catch {
+        /* Focus and visibility listeners remain the cookie-only fallback. */
+      }
     },
   };
 }
 function subscribe(listener: () => void) {
   subscribers.add(listener);
+  ensureAcceptedChannel();
   window.addEventListener("storage", listener);
+  // Cookie consent remains shared when local storage writes are unavailable.
+  // Re-read it when this tab becomes active again.
+  window.addEventListener("focus", listener);
+  document.addEventListener("visibilitychange", listener);
   return () => {
     subscribers.delete(listener);
     window.removeEventListener("storage", listener);
+    window.removeEventListener("focus", listener);
+    document.removeEventListener("visibilitychange", listener);
+    if (subscribers.size === 0) {
+      acceptedChannel?.close();
+      acceptedChannel = null;
+    }
   };
 }
 const snapshot = () => readClickwrapAccepted(environment());
