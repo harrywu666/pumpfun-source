@@ -9,6 +9,21 @@ import { CompetitionStore, defaultCompetitionStore } from './competitions-store.
 import { sendSynthetic, errorBody, rejectDuplicateQueryKeys } from './users-routes.js';
 
 /**
+ * The list operation declares no query parameters. A non-empty query cannot
+ * establish filter or pagination semantics, so do not silently ignore it.
+ */
+function rejectUnsupportedQueryKeys(request: { url: string }, reply: FastifyReply): boolean {
+  const separator = request.url.indexOf('?');
+  if (separator < 0) return false;
+  const keys = [...new URLSearchParams(request.url.slice(separator + 1)).keys()];
+  if (keys.length === 0) return false;
+  reply.code(501).send(errorBody(501, 'COMPATIBILITY_NOT_IMPLEMENTED', {
+    reason: 'COMPETITION_QUERY_UNSUPPORTED',
+  }));
+  return true;
+}
+
+/**
  * All competition numeric query parameters are declared `type: integer` in
  * contracts/developer.openapi.json, and the documented clamping covers
  * out-of-range integers only (0/negatives clamp to the floor, values above
@@ -38,6 +53,7 @@ export function registerCompetitionRoutes(
    */
   app.get('/v1/competitions', async (request, reply) => {
     if (rejectDuplicateQueryKeys(request, reply)) return reply;
+    if (rejectUnsupportedQueryKeys(request, reply)) return reply;
     const buckets = store.listBuckets();
     return sendSynthetic(reply, 200, buckets);
   });
