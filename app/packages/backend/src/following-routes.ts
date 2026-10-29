@@ -113,13 +113,14 @@ export function registerFollowingRoutes(
         .code(400)
         .send(errorBody(400, 'INVALID_SEARCH_TERM', { parameter: 'searchTerm', reason: 'required' }));
     }
-    if ([...term].length > SEARCH_TERM_MAX) {
+    const normalizedTerm = term.trim();
+    if ([...normalizedTerm].length > SEARCH_TERM_MAX) {
       return reply.code(400).send(
         errorBody(400, 'INVALID_SEARCH_TERM', {
           parameter: 'searchTerm',
           reason: 'too_long',
           maxLength: SEARCH_TERM_MAX,
-          received: [...term].length,
+          received: [...normalizedTerm].length,
         }),
       );
     }
@@ -127,7 +128,7 @@ export function registerFollowingRoutes(
     if (typeof page === 'string') {
       return reply.code(400).send(errorBody(400, page));
     }
-    const matches = store.searchFollowers(userId, term);
+    const matches = store.searchFollowers(userId, normalizedTerm);
     return sendSynthetic(reply, 200, matches.slice(page.offset, page.offset + page.limit).map(toDeveloperUser));
   });
 
@@ -142,13 +143,14 @@ export function registerFollowingRoutes(
         .code(400)
         .send(errorBody(400, 'INVALID_SEARCH_TERM', { parameter: 'searchTerm', reason: 'required' }));
     }
-    if ([...term].length > SEARCH_TERM_MAX) {
+    const normalizedTerm = term.trim();
+    if ([...normalizedTerm].length > SEARCH_TERM_MAX) {
       return reply.code(400).send(
         errorBody(400, 'INVALID_SEARCH_TERM', {
           parameter: 'searchTerm',
           reason: 'too_long',
           maxLength: SEARCH_TERM_MAX,
-          received: [...term].length,
+          received: [...normalizedTerm].length,
         }),
       );
     }
@@ -156,7 +158,7 @@ export function registerFollowingRoutes(
     if (typeof page === 'string') {
       return reply.code(400).send(errorBody(400, page));
     }
-    const matches = store.searchFollowing(userId, term);
+    const matches = store.searchFollowing(userId, normalizedTerm);
     return sendSynthetic(reply, 200, matches.slice(page.offset, page.offset + page.limit).map(toDeveloperUser));
   });
 
