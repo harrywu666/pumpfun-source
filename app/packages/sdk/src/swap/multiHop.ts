@@ -229,6 +229,9 @@ export function multiHopSwapQuote({
   if (amountIn.lten(0)) {
     throw new Error("amountIn must be positive.");
   }
+  if (!Number.isFinite(slippage) || slippage < 0 || slippage > 100) {
+    throw new Error("slippage must be a finite number between 0 and 100.");
+  }
   const { isBuy, legs } = resolveMultiHopRoute(inMint, hops);
   const hopAmountsOut: BN[] = [];
   let amount = amountIn;
