@@ -28,12 +28,13 @@ test('real HTTP browser module performs Wallet Standard handshake/approval/chang
     await page.waitForFunction(() => window.ready);
     const result = await page.evaluate(async () => {
       let reads = 0, calls = [], change, unregister;
-      const accounts = [{ address: '11111111111111111111111111111111', chains: ['solana:mainnet'] }];
+      let accounts = [];
+      const approvedAccounts = [{ address: '11111111111111111111111111111111', chains: ['solana:mainnet'] }];
       window.addEventListener('wallet-standard:app-ready', event => {
         unregister = event.detail.register({ version: '1.0.0', name: 'Protocol fixture', chains: ['solana:mainnet'],
           get accounts() { reads++; return accounts; },
           features: {
-            'standard:connect': { version: '1.0.0', async connect(...args) { calls.push(`connect:${args.length}`); return { accounts }; } },
+            'standard:connect': { version: '1.0.0', async connect(...args) { calls.push(`connect:${args.length}`); return { accounts: approvedAccounts }; } },
             'standard:events': { version: '1.0.0', on(event, callback) { change = callback; calls.push(event); return () => calls.push('off'); } },
             get 'solana:signIn'() { throw Error('forbidden'); },
           } });
@@ -41,13 +42,14 @@ test('real HTTP browser module performs Wallet Standard handshake/approval/chang
       const controller = window.controller;
       controller.discover(); const discoveredReads = reads;
       await controller.connect(0); const connected = controller.getSnapshot().address;
-      accounts[0].address = 'So11111111111111111111111111111111111111112'; change({ accounts });
+      const approvedReads = reads;
+      accounts = [{ address: 'So11111111111111111111111111111111111111112', chains: ['solana:mainnet'] }]; change({ accounts });
       const changed = controller.getSnapshot().address;
       unregister(); const revoked = controller.getSnapshot().address;
       controller.dispose();
-      return { discoveredReads, connected, changed, revoked, calls, cookies: document.cookie, local: localStorage.length, session: sessionStorage.length };
+      return { discoveredReads, approvedReads, connected, changed, revoked, calls, cookies: document.cookie, local: localStorage.length, session: sessionStorage.length };
     });
-    assert.deepEqual(result, { discoveredReads: 0, connected: '11111111111111111111111111111111', changed: 'So11111111111111111111111111111111111111112', revoked: null, calls: ['connect:0', 'change', 'off'], cookies: '', local: 0, session: 0 });
+    assert.deepEqual(result, { discoveredReads: 0, approvedReads: 0, connected: '11111111111111111111111111111111', changed: 'So11111111111111111111111111111111111111112', revoked: null, calls: ['connect:0', 'change', 'off'], cookies: '', local: 0, session: 0 });
     assert.deepEqual(errors, []);
     assert.ok(requests.every(value => ['GET /', 'GET /controller.js', 'GET /favicon.ico'].includes(value)));
   } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }

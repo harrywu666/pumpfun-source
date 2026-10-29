@@ -16,6 +16,7 @@ function fixture(timeout = 15000) {
     disconnects = 0,
     stops = 0;
   let accounts: unknown = [{ address: A, chains: ["solana:mainnet"] }];
+  let connectAccounts: readonly unknown[] | null = null;
   let connect = async () => {};
   let disconnect = async () => {};
   const features = {
@@ -24,7 +25,7 @@ function fixture(timeout = 15000) {
       async connect() {
         connects++;
         await connect();
-        return { accounts };
+        return { accounts: connectAccounts ?? accounts };
       },
     },
     "standard:events": {
@@ -86,6 +87,9 @@ function fixture(timeout = 15000) {
     register: (...wallets: unknown[]) => api.register(...wallets),
     accounts(value: unknown) {
       accounts = value;
+    },
+    connectAccounts(value: readonly unknown[]) {
+      connectAccounts = value;
     },
     connect(fn: typeof connect) {
       connect = fn;
@@ -191,6 +195,17 @@ test("connection failure hides provider payload and retry can succeed", async ()
   assert.equal(f.controller.getSnapshot().address, A);
   f.controller.dispose();
 });
+test("uses accounts returned by standard connect before wallet metadata catches up", async () => {
+  const f = fixture();
+  f.accounts([]);
+  f.connectAccounts([{ address: A, chains: ["solana:mainnet"] }]);
+  f.controller.discover();
+  await f.controller.connect(0);
+  assert.equal(f.controller.getSnapshot().status, "connected");
+  assert.equal(f.controller.getSnapshot().address, A);
+  assert.equal(f.counts.reads, 0);
+  f.controller.dispose();
+});
 test("cancel, unregister and dispose reject late connection responses", async () => {
   for (const action of ["cancel", "unregister", "dispose"]) {
     const f = fixture(),
@@ -242,11 +257,11 @@ test("first account changes update the public address; empty/revoked/malformed a
     const f = fixture();
     f.controller.discover();
     await f.controller.connect(0);
-    f.accounts([{ address: B, chains: ["solana:devnet"] }]);
-    f.change({ accounts: [] });
+    f.change({
+      accounts: [{ address: B, chains: ["solana:devnet"] }],
+    });
     assert.equal(f.controller.getSnapshot().address, B);
-    f.accounts(bad);
-    f.change({ accounts: [] });
+    f.change({ accounts: bad });
     assert.equal(f.controller.getSnapshot().address, null);
     assert.equal(f.counts.stops, 1);
     f.controller.dispose();
@@ -312,11 +327,9 @@ test('selects a Solana account after another chain account and tracks changes', 
     await f.controller.connect(0);
     assert.equal(f.controller.getSnapshot().status, 'connected');
     assert.equal(f.controller.getSnapshot().address, A);
-    f.accounts([{ address: '0xsynthetic', chains: ['eip155:1'] }, { address: B, chains: ['solana:mainnet'] }]);
-    f.change({ accounts: [] });
+    f.change({ accounts: [{ address: '0xsynthetic', chains: ['eip155:1'] }, { address: B, chains: ['solana:mainnet'] }] });
     assert.equal(f.controller.getSnapshot().address, B);
-    f.accounts([{ address: '0xsynthetic', chains: ['eip155:1'] }]);
-    f.change({ accounts: [] });
+    f.change({ accounts: [{ address: '0xsynthetic', chains: ['eip155:1'] }] });
     assert.equal(f.controller.getSnapshot().address, null);
   } finally { f.controller.dispose(); }
 });

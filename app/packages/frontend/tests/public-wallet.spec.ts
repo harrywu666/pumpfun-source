@@ -15,7 +15,8 @@ async function installWallet(
 ) {
   await page.addInitScript(
     ({ address, mode }) => {
-      let accounts = [{ address, chains: ["solana:mainnet"] }];
+      let accounts: { address: string; chains: string[] }[] = [];
+      const approvedAccounts = [{ address, chains: ["solana:mainnet"] }];
       let change: ((value: unknown) => void) | null = null;
       let unregister = () => {};
       const probe = {
@@ -53,7 +54,7 @@ async function installWallet(
                   probe.reject = () =>
                     reject(new Error("private-provider-payload"));
                 });
-              return { accounts };
+              return { accounts: approvedAccounts };
             },
           },
           "standard:events": {

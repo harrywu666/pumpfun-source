@@ -198,8 +198,7 @@ export class PublicWalletController {
       new CustomEvent("wallet-standard:app-ready", { detail: api }),
     );
   };
-  private address(wallet: Wallet) {
-    const accounts = wallet.raw.accounts;
+  private address(accounts: unknown) {
     if (!Array.isArray(accounts)) throw new Error("No Solana account");
     const account = accounts.find(
       (candidate) =>
@@ -240,16 +239,22 @@ export class PublicWalletController {
     }, this.timeoutMs);
     try {
       // Explicit action only: no silent connect, signIn, signMessage or transaction access.
-      await wallet.connect.connect();
+      const result = await wallet.connect.connect();
       if (generation !== this.generation) return;
-      this.address(wallet);
+      let address = this.address(
+        record(result) && "accounts" in result
+          ? result.accounts
+          : wallet.raw.accounts,
+      );
       if (this.timeout !== null) clearTimeout(this.timeout);
       this.timeout = null;
       const stop = wallet.events.on("change", (change) => {
         if (generation !== this.generation) return;
         try {
-          if (record(change) && "accounts" in change)
-            this.publish({ address: this.address(wallet) });
+          if (record(change) && "accounts" in change) {
+            address = this.address(change.accounts);
+            this.publish({ address });
+          }
           if (!supported(wallet.raw))
             this.fail("Wallet connection is no longer available.");
         } catch {
@@ -266,7 +271,7 @@ export class PublicWalletController {
         return;
       }
       this.stopChanges = stop;
-      this.publish({ status: "connected", address: this.address(wallet) });
+      this.publish({ status: "connected", address });
     } catch {
       if (generation === this.generation)
         this.fail("Unable to connect. The request may have been declined.");
