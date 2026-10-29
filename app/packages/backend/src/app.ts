@@ -10,6 +10,7 @@ import { registerPayoutRoutes, PAYOUTS_NATIVE_ROUTES } from "./payouts-routes.js
 import type { UserTradesStore } from "./user-trades-store.js";
 import { registerUserTradesRoutes, USER_TRADES_NATIVE_ROUTES } from "./user-trades-routes.js";
 import { apiKeyGate } from "./api-key-gate.js";
+import { hasValidQueryEncoding } from "./fixture-query.js";
 import { registerSearchResolveRoutes, SEARCH_RESOLVE_NATIVE_ROUTES } from "./search-resolve-routes.js";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -447,10 +448,16 @@ export function buildApp(fixtures: Fixture[] = [], opts: BuildAppOptions = {}) {
     const separator = request.url.indexOf("?");
     const pathname =
       separator < 0 ? request.url : request.url.slice(0, separator);
+    const rawQuery =
+      separator < 0 ? "" : request.url.slice(separator + 1);
+    if (!hasValidQueryEncoding(rawQuery)) {
+      return reply.code(400).send({
+        statusCode: 400,
+        error: "INVALID_QUERY_ENCODING",
+      });
+    }
     const entries = [
-      ...new URLSearchParams(
-        separator < 0 ? "" : request.url.slice(separator + 1),
-      ).entries(),
+      ...new URLSearchParams(rawQuery).entries(),
     ];
     // The fixture format cannot represent duplicate query keys: fail explicitly.
     if (new Set(entries.map(([key]) => key)).size !== entries.length) {
