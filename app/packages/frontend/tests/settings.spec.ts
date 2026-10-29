@@ -257,6 +257,68 @@ test("search, empty results, clear, tabs and keyboard selection work without pre
   ).toBeVisible();
 });
 
+for (const [label, modifier, property] of [
+  ["Alt", "Alt", "altKey"],
+  ["Control", "Control", "ctrlKey"],
+  ["Meta", "Meta", "metaKey"],
+] as const) {
+  test(`${label}+ArrowLeft remains outside settings tab navigation`, async ({
+    page,
+  }) => {
+    await page.goto("/?marker=older");
+    await page.goto("/?marker=current&settings=notifications");
+    const dialog = page.getByRole("dialog", { name: "Settings", exact: true });
+    const notifications = dialog.getByRole("tab", {
+      name: "Notifications",
+      exact: true,
+    });
+    await expect(notifications).toHaveAttribute("aria-selected", "true");
+    await notifications.focus();
+    await page.evaluate(() => {
+      window.addEventListener("keydown", (event) => {
+        if (event.key !== "ArrowLeft") return;
+        setTimeout(() => {
+          (
+            window as typeof window & {
+              settingsShortcut?: {
+                altKey: boolean;
+                ctrlKey: boolean;
+                metaKey: boolean;
+                defaultPrevented: boolean;
+              };
+            }
+          ).settingsShortcut = {
+            altKey: event.altKey,
+            ctrlKey: event.ctrlKey,
+            metaKey: event.metaKey,
+            defaultPrevented: event.defaultPrevented,
+          };
+        });
+      });
+    });
+    await notifications.press(`${modifier}+ArrowLeft`);
+    await expect(page).toHaveURL("/?marker=current&settings=notifications");
+    await expect(notifications).toHaveAttribute("aria-selected", "true");
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () =>
+            (
+              window as typeof window & {
+                settingsShortcut?: {
+                  altKey: boolean;
+                  ctrlKey: boolean;
+                  metaKey: boolean;
+                  defaultPrevented: boolean;
+                };
+              }
+            ).settingsShortcut,
+        ),
+      )
+      .toMatchObject({ [property]: true, defaultPrevented: false });
+  });
+}
+
 test("Escape and repeated reopening clear local search and do not add history entries", async ({
   page,
 }) => {

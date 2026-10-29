@@ -235,6 +235,7 @@ function SettingsControlContent({
     event: KeyboardEvent<HTMLButtonElement>,
     current: SettingsSection,
   ) {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
     const index = SETTINGS_SECTIONS.findIndex((item) => item.id === current);
     let next: number;
     if (event.key === "ArrowRight")
