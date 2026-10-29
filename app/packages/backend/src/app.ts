@@ -49,6 +49,7 @@ const reservedFixturePaths = new Set([
   "/services/frontend/home-feed/new",
   "/services/frontend/home-feed/new/count",
 ]);
+const serverFramingHeaders = new Set(["content-length", "transfer-encoding"]);
 
 function compareKeys([left]: [string, string], [right]: [string, string]) {
   return left === right ? 0 : left < right ? -1 : 1;
@@ -468,7 +469,15 @@ export function buildApp(fixtures: Fixture[] = [], opts: BuildAppOptions = {}) {
         path: pathname,
       });
     }
-    if (fixture.headers) reply.headers(fixture.headers);
+    if (fixture.headers) {
+      // Fixtures retain decoded bodies, so the replay server owns the new
+      // message framing instead of copying framing from the captured response.
+      for (const [name, value] of Object.entries(fixture.headers)) {
+        if (!serverFramingHeaders.has(name.toLowerCase())) {
+          reply.header(name, value);
+        }
+      }
+    }
     // RFC 9110 section 15.3.6 forbids content in a 205 response.
     if (fixture.status === 205) return reply.code(205).send();
     // Fixture bodies are JSON by default; explicit non-JSON types stay verbatim.
