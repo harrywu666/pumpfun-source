@@ -24,6 +24,17 @@ function integer(value: unknown, signed = false): value is string {
   const n = BigInt(value);
   return signed ? n >= -(1n << 63n) && n < 1n << 63n : n < 1n << 64n;
 }
+function hasJsonMediaType(response: Response): boolean {
+  const mediaType = response.headers
+    .get("content-type")
+    ?.split(";", 1)[0]
+    .trim()
+    .toLowerCase();
+  return (
+    mediaType === "application/json" ||
+    /^application\/[a-z0-9!#$&^_.+-]+\+json$/.test(mediaType ?? "")
+  );
+}
 export function isWalletRecord(
   value: unknown,
   address: string,
@@ -88,6 +99,8 @@ export async function fetchWalletRecord(
     },
   );
   if (!response.ok)
+    throw new Error("The public Pump record is unavailable or unsupported.");
+  if (!hasJsonMediaType(response))
     throw new Error("The public Pump record is unavailable or unsupported.");
   const value: unknown = await response.json();
   signal?.throwIfAborted();
