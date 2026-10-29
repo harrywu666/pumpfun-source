@@ -213,7 +213,7 @@ def analyze_relocations(elf):
         if elf.lo <= at < elf.hi:
             target_section = ".text"
         for sec_name, sec in elf.secs.items():
-            if sec[4] <= at < sec[4] + sec[5] and sec_name != ".text":
+            if sec[3] <= at < sec[3] + sec[5] and sec_name != ".text":
                 target_section = sec_name
                 break
 
