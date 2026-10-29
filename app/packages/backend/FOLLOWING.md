@@ -77,6 +77,11 @@ confused.
     when null. Its shared schema allows the property for signed-in website views
     but explicitly excludes it on the developer host. Compact list rows already
     omit it. Projection preserves stored users and does not invent a viewer.
+14. **Subject aliases.** The captured v3 route schema describes `userId` as
+    "Subject: cc user-id UUID or wallet", and the documented SDK example passes
+    `user.address`. The store resolves both the requested subject and each edge
+    endpoint through the shared `UserStore` address/userId indexes before
+    comparison, so either spelling addresses the same follow graph.
 
 These boundaries use the declared `https://api.pump.fun/v1` contract (OpenAPI
 `0.294.0`), not a guessed website graph origin. The bindings in

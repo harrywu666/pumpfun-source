@@ -94,14 +94,22 @@ export class FollowingStore {
     if (new Set(pairs).size !== pairs.length) throw new TypeError('Duplicate follow relation');
   }
 
+  /** Resolve a public subject/edge alias to the shared user identity. */
+  private canonicalId(id: string): string {
+    const user = this.users.getById(id);
+    return user?.userId || user?.address || id;
+  }
+
   /** Number of edges pointing at `userId`. */
   countFollowers(userId: string): number {
-    return this.edges.filter((e) => e.following_id === userId).length;
+    const subjectId = this.canonicalId(userId);
+    return this.edges.filter((e) => this.canonicalId(e.following_id) === subjectId).length;
   }
 
   /** Number of edges leaving `userId`. */
   countFollowing(userId: string): number {
-    return this.edges.filter((e) => e.follower_id === userId).length;
+    const subjectId = this.canonicalId(userId);
+    return this.edges.filter((e) => this.canonicalId(e.follower_id) === subjectId).length;
   }
 
   /**
@@ -111,8 +119,9 @@ export class FollowingStore {
    * newest edge first. Ties break on username then userId so paging is stable.
    */
   followersOf(userId: string, opts: PageOptions = {}): FollowRow[] {
+    const subjectId = this.canonicalId(userId);
     const page = this.edges
-      .filter((e) => e.following_id === userId)
+      .filter((e) => this.canonicalId(e.following_id) === subjectId)
       .map((e) => ({ edge: e, user: this.users.getById(e.follower_id) }))
       .filter((row): row is { edge: FollowEdge; user: User } => row.user !== undefined);
     return this.page(page, opts);
@@ -120,8 +129,9 @@ export class FollowingStore {
 
   /** One page of the users `userId` follows. Same ordering rules as followersOf. */
   followingOf(userId: string, opts: PageOptions = {}): FollowRow[] {
+    const subjectId = this.canonicalId(userId);
     const page = this.edges
-      .filter((e) => e.follower_id === userId)
+      .filter((e) => this.canonicalId(e.follower_id) === subjectId)
       .map((e) => ({ edge: e, user: this.users.getById(e.following_id) }))
       .filter((row): row is { edge: FollowEdge; user: User } => row.user !== undefined);
     return this.page(page, opts);
@@ -138,8 +148,9 @@ export class FollowingStore {
 
   /** Every user on one side of the graph, unordered: the search candidate set. */
   private membersOf(side: 'followers' | 'following', userId: string): User[] {
+    const subjectId = this.canonicalId(userId);
     const rows = this.edges
-      .filter((e) => (side === 'followers' ? e.following_id === userId : e.follower_id === userId))
+      .filter((e) => this.canonicalId(side === 'followers' ? e.following_id : e.follower_id) === subjectId)
       .map((e) => this.users.getById(side === 'followers' ? e.follower_id : e.following_id))
       .filter((user): user is User => user !== undefined);
     return rows;
@@ -150,8 +161,10 @@ export class FollowingStore {
    * follow the target.
    */
   relationship(targetId: string, viewerId: string): FollowRelationship | null {
+    const targetSubjectId = this.canonicalId(targetId);
+    const viewerSubjectId = this.canonicalId(viewerId);
     const edge = this.edges.find(
-      (e) => e.follower_id === viewerId && e.following_id === targetId,
+      (e) => this.canonicalId(e.follower_id) === viewerSubjectId && this.canonicalId(e.following_id) === targetSubjectId,
     );
     if (!edge) return null;
     return {
