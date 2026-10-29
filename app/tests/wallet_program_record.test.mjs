@@ -295,6 +295,29 @@ test("handler rejects malformed queries before reader and returns bounded no-sto
   assert.equal(result.status, 502);
   assert.ok(!(await result.text()).includes("private-provider"));
 });
+
+test("Next automatic HEAD dispatch reaches the same bounded public reader", async () => {
+  const success = await read(fixture());
+  let reads = 0;
+  const reader = async () => {
+    reads++;
+    return success;
+  };
+  const head = await handleWalletRecord(
+    new Request(`http://local.test/api/portfolio/pump-record?address=${USER}`, {
+      method: "HEAD",
+    }),
+    reader,
+  );
+  assert.deepEqual(
+    {
+      headStatus: head.status,
+      cacheControl: head.headers.get("cache-control"),
+      reads,
+    },
+    { headStatus: 200, cacheControl: "no-store", reads: 1 },
+  );
+});
 test("real local HTTP client traverses actual handler and SDK reader for success, missing and unsupported records", async (t) => {
   let value = account(),
     requests = [];

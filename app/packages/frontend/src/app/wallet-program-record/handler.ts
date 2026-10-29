@@ -19,7 +19,8 @@ export async function handleWalletRecord(
       { status, headers },
     );
   const query = new URL(request.url).searchParams;
-  if (request.method !== "GET") return error(405, "METHOD_NOT_ALLOWED", false);
+  if (request.method !== "GET" && request.method !== "HEAD")
+    return error(405, "METHOD_NOT_ALLOWED", false);
   if (
     query.getAll("address").length !== 1 ||
     [...query.keys()].some((key) => key !== "address")
