@@ -7,24 +7,29 @@ import { buildApp, type Fixture } from "../src/app.js";
 function head(
   origin: string,
   path: string,
+  headers: Record<string, string> = {},
 ): Promise<{
   status: number;
   headers: Record<string, string | string[] | undefined>;
   body: string;
 }> {
   return new Promise((resolve, reject) => {
-    const outgoing = request(origin + path, { method: "HEAD" }, (response) => {
-      const chunks: Buffer[] = [];
-      response.on("data", (chunk: Buffer) => chunks.push(chunk));
-      response.on("end", () =>
-        resolve({
-          status: response.statusCode ?? 0,
-          headers: response.headers,
-          body: Buffer.concat(chunks).toString("utf8"),
-        }),
-      );
-      response.on("error", reject);
-    });
+    const outgoing = request(
+      origin + path,
+      { method: "HEAD", headers },
+      (response) => {
+        const chunks: Buffer[] = [];
+        response.on("data", (chunk: Buffer) => chunks.push(chunk));
+        response.on("end", () =>
+          resolve({
+            status: response.statusCode ?? 0,
+            headers: response.headers,
+            body: Buffer.concat(chunks).toString("utf8"),
+          }),
+        );
+        response.on("error", reject);
+      },
+    );
     outgoing.setTimeout(2_000, () =>
       outgoing.destroy(new Error("HEAD fixture response timed out")),
     );
@@ -46,6 +51,30 @@ test("HEAD uses the committed GET fixture without sending its body", async () =>
     const response = await head(origin, "/services/frontend/sol-price");
     assert.equal(response.status, 200);
     assert.match(response.headers["content-type"] ?? "", /^application\/json/);
+    assert.equal(response.body, "");
+  } finally {
+    await app.close();
+  }
+});
+
+test("HEAD follows a documented GET route's automatic dispatch", async () => {
+  const app = buildApp([
+    {
+      method: "GET",
+      path: "/v1/payouts/leaderboard",
+      status: 200,
+      headers: { "X-Recorded": "documented-get" },
+      body: { entries: [] },
+      source: "synthetic:documented-head-get",
+    },
+  ]);
+  try {
+    const origin = await app.listen({ host: "127.0.0.1", port: 0 });
+    const response = await head(origin, "/v1/payouts/leaderboard", {
+      authorization: `Bearer pf_live_${"a".repeat(49)}`,
+    });
+    assert.equal(response.status, 200);
+    assert.equal(response.headers["x-recorded"], "documented-get");
     assert.equal(response.body, "");
   } finally {
     await app.close();
