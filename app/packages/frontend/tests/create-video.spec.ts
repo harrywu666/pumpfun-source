@@ -3,6 +3,21 @@ const PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
   "base64",
 );
+const WEBM = Buffer.from(
+  [
+    "GkXfo59ChoEBQveBAULygQRC84EIQoKEd2VibUKHgQJChYECGFOAZwEAAAAAAAKwEU2bdLpNu4tTq4QVSalmU6yBoU27i1OrhBZU",
+    "rmtTrIHWTbuMU6uEElTDZ1OsggEjTbuMU6uEHFO7a1OsggKa7AEAAAAAAABZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+    "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmsCrXsYMPQkBNgIxM",
+    "YXZmNjIuMy4xMDBXQYxMYXZmNjIuMy4xMDBEiYhAiQAAAAAAABZUrmvIrgEAAAAAAAA/14EBc8WITbpgpVc+sqKcgQAitZyDdW5k",
+    "iIEAhoVWX1ZQOIOBASPjg4QF9eEA4JCwgUC6gUCagQJVsIRVuYEBElTDZ/tzc59jwIBnyJlFo4dFTkNPREVSRIeMTGF2ZjYyLjMu",
+    "MTAwc3PWY8CLY8WITbpgpVc+sqJnyKFFo4dFTkNPREVSRIeUTGF2YzYyLjExLjEwMCBsaWJ2cHhnyKFFo4hEVVJBVElPTkSHkzAw",
+    "OjAwOjAwLjgwMDAwMDAwMAAfQ7Z1QPHngQCjxIEAAIDQAwCdASpAAEAAAEcIhYWIhYSIAgICdaoD+AP6AgcaRkYBcMdIS8QA/v1u",
+    "8//jmTcwxP+Obf/xYTwOKMj/8VEAo5aBAGQA0QEAARAQABgAGFgv9AAIjoAAo5aBAMgA0QEAARAQABgAGFgv9AAIjoAAo5aBASwA",
+    "0QEAARAQABgAGFgv9AAIjoAAo5aBAZAA0QEAARAQABgAGFgv9AAIjoAAo5aBAfQA0QEAARAQABgAGFgv9AAIjoAAo5aBAlgA0QEA",
+    "ARAQABgAGFgv9AAIjoAAo5aBArwA0QEAARAQFGAAYWC/0AAiOgAAHFO7a5G7j7OBALeK94EB8YIBo/CBAw==",
+  ].join(""),
+  "base64",
+);
 
 test("rejected file and unsupported decoder preserve manual image and never upload", async ({
   page,
@@ -71,13 +86,11 @@ test("manual replacement and reset cancel a pending decode rather than publishin
   await expect(videoField.getByRole("status")).toContainText(
     "Preparing local video covers",
   );
-  await page
-    .getByLabel(/^Coin image/)
-    .setInputFiles({
-      name: "new-manual.png",
-      mimeType: "image/png",
-      buffer: PNG,
-    });
+  await page.getByLabel(/^Coin image/).setInputFiles({
+    name: "new-manual.png",
+    mimeType: "image/png",
+    buffer: PNG,
+  });
   await expect(
     page.getByText("Preparing local video covers…", { exact: true }),
   ).toHaveCount(0);
@@ -100,4 +113,42 @@ test("manual replacement and reset cancel a pending decode rather than publishin
   await expect(
     page.getByRole("group", { name: "Video cover choices" }),
   ).toHaveCount(0);
+});
+
+test("manual image replacement detaches the previously selected video cover", async ({
+  page,
+}) => {
+  await page.goto("/create");
+  const videoField = page.getByRole("group", { name: /^Video and cover/ });
+  await page.getByLabel("Local video", { exact: true }).setInputFiles({
+    name: "sample.webm",
+    mimeType: "video/webm",
+    buffer: WEBM,
+  });
+  const covers = videoField.getByRole("group", {
+    name: "Video cover choices",
+  });
+  const firstCover = covers.getByRole("button", { name: /Cover 1/ });
+  await expect(firstCover).toHaveAttribute("aria-pressed", "true", {
+    timeout: 15_000,
+  });
+  await page.getByLabel(/^Coin image/).setInputFiles({
+    name: "manual.png",
+    mimeType: "image/png",
+    buffer: PNG,
+  });
+  await expect(page.getByTestId("selected-image")).toContainText("manual.png");
+  await expect(firstCover).toHaveAttribute("aria-pressed", "false");
+  const secondCover = covers.getByRole("button", { name: /Cover 2/ });
+  await secondCover.click();
+  await expect(secondCover).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("selected-image")).toContainText(
+    "video-cover-2.jpg",
+  );
+  await page.getByRole("button", { name: "Remove image", exact: true }).click();
+  await expect(page.getByTestId("selected-image")).toHaveCount(0);
+  await expect(secondCover).toHaveAttribute("aria-pressed", "false");
+  await expect(
+    videoField.getByLabel("Local draft video preview"),
+  ).toBeVisible();
 });

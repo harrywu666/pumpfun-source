@@ -164,14 +164,14 @@ export default function CreateCoinForm() {
       event.target.value = "";
       return;
     }
-    videoControlRef.current?.cancelPending();
+    videoControlRef.current?.detachCover();
     setSelectedImage({ file, url: URL.createObjectURL(file) });
     setErrors((current) => ({ ...current, image: undefined }));
     setStatus("");
   }
 
   function removeImage(error?: string) {
-    videoControlRef.current?.cancelPending();
+    videoControlRef.current?.detachCover();
     setSelectedImage(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
     setErrors((current) => ({ ...current, image: error }));

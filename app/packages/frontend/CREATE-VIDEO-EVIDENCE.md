@@ -78,7 +78,9 @@ are not content authentication or malware scanning.
   preserves the committed video and manual image. Newer selections, cancellation,
   removal and unmount invalidate earlier promises; late results are disposed,
   not published. A successful manual-image selection synchronously cancels any
-  pending video decode, preventing it from overwriting the newer image.
+  pending video decode and detaches the current cover marker without discarding
+  the video, preventing a stale cover from appearing selected beside the newer
+  image. Choosing another cover reattaches it.
 - Clear removes only the image owned by that video, not a manually chosen image
   or another video's cover. Reset clears the whole draft. Explicitly choosing a
   cover cancels a pending replacement and replaces the manual image by intent.

@@ -227,7 +227,8 @@ export async function prepareVideo(
 
 export type VideoState = {
   preview: VideoPreview | null;
-  selected: number;
+  // A kept preview can have no applied cover after a manual image replacement.
+  selected: number | null;
   pending: boolean;
   error: string;
 };
@@ -246,7 +247,7 @@ export class VideoDraftSession {
   private disposed = false;
   private state: VideoState = {
     preview: null,
-    selected: 0,
+    selected: null,
     pending: false,
     error: "",
   };
@@ -330,13 +331,24 @@ export class VideoDraftSession {
     this.pending = undefined;
     this.publish({ pending: false, error: "" });
   }
+  detachCover() {
+    if (this.disposed) return;
+    const hadPending = Boolean(this.pending);
+    if (hadPending) {
+      ++this.revision;
+      this.pending?.abort();
+      this.pending = undefined;
+    }
+    if (hadPending || this.state.selected !== null)
+      this.publish({ selected: null, pending: false });
+  }
   clear() {
     if (this.disposed) return;
     ++this.revision;
     this.pending?.abort();
     this.pending = undefined;
     const previous = this.state.preview;
-    this.publish({ preview: null, selected: 0, pending: false, error: "" });
+    this.publish({ preview: null, selected: null, pending: false, error: "" });
     if (previous) {
       this.removed(previous);
       previous.dispose();

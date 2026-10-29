@@ -343,6 +343,24 @@ test("rejected replacement preserves prior video and never clears a manual image
   assert.equal(discardVideoCover({ videoOwner: a }, a), null);
   assert.equal(discardVideoCover(null, a), null);
 });
+test("manual image selection cancels a pending replacement and detaches the committed cover", async () => {
+  const p = controlledSession();
+  const first = p.session.choose(file());
+  const a = p.ready(0);
+  await first;
+  const pending = p.session.choose(file("new.mp4"));
+  p.session.detachCover();
+  assert.equal(p.pending[1].signal.aborted, true);
+  const b = p.ready(1);
+  await pending;
+  assert.equal(p.states.at(-1).preview, a);
+  assert.equal(p.states.at(-1).selected, null);
+  assert.equal(p.states.at(-1).pending, false);
+  assert.deepEqual(p.disposed, [b]);
+  assert.equal(p.removed.length, 0);
+  p.session.select(2);
+  assert.equal(p.selected.at(-1).cover, a.covers[2].file);
+});
 test("late replaced decode is discarded, not selected or allowed to remove newer cover", async () => {
   const p = controlledSession();
   const first = p.session.choose(file());
