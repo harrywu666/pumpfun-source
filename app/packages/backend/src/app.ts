@@ -30,6 +30,7 @@ import { HomeFeedStore, defaultHomeFeedStore } from "./home-feed-store.js";
 import { registerLocalMediaRoutes, type LocalMediaOptions } from "./local-media-routes.js";
 import type { PortfolioBalancesStore } from "./portfolio-balances-store.js";
 import { registerPortfolioBalancesRoutes, PORTFOLIO_BALANCES_NATIVE_ROUTES } from "./portfolio-balances-routes.js";
+import { rejectDuplicateContentTypeFields } from "./request-header-boundary.js";
 
 export type Fixture = {
   method: string;
@@ -356,6 +357,7 @@ export function buildApp(fixtures: Fixture[] = [], opts: BuildAppOptions = {}) {
   // Reject an invalid inventory before constructing an application that can listen.
   const fixtureMap = registerFixtures(fixtures);
   const app = Fastify({ logger: false });
+  rejectDuplicateContentTypeFields(app);
   const specPath = fileURLToPath(
     new URL("../../../contracts/developer.openapi.json", import.meta.url),
   );
