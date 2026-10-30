@@ -67,7 +67,9 @@ class Cand:
 
 
 def opgrams(raw, k=3):
-    ops = [raw[i] for i in range(0, len(raw), 8)]
+    ops = []; i = 0
+    while i < len(raw):
+        ops.append(raw[i]); i += 16 if raw[i] == 0x18 else 8
     return Counter(tuple(ops[i:i + k]) for i in range(max(0, len(ops) - k + 1)))
 
 

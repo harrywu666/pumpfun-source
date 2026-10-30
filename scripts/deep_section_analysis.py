@@ -69,6 +69,7 @@ def analyze_data_layout(elf):
             continue
         sec = elf.secs[section_name]
         start = sec[4]
+        address_start = sec[3]
         size = sec[5]
         data = elf.b[start:start + size]
 
@@ -85,12 +86,20 @@ def analyze_data_layout(elf):
                 if len(current) >= 4:
                     strings.append({
                         "offset": current_start,
-                        "address": hex(start + current_start),
+                        "address": hex(address_start + current_start),
                         "length": len(current),
                         "value": "".join(current)[:200],
                     })
                 current = []
                 current_start = None
+
+        if len(current) >= 4:
+            strings.append({
+                "offset": current_start,
+                "address": hex(start + current_start),
+                "length": len(current),
+                "value": "".join(current)[:200],
+            })
 
         # Zero padding analysis
         zero_runs = []
@@ -118,14 +127,14 @@ def analyze_data_layout(elf):
             if elf.lo <= val < elf.hi and val % 8 == 0:
                 pointers.append({
                     "offset": i,
-                    "address": hex(start + i),
+                    "address": hex(address_start + i),
                     "points_to": hex(val),
                     "in_text": True,
                 })
-            elif start <= val < start + size:
+            elif address_start <= val < address_start + size:
                 pointers.append({
                     "offset": i,
-                    "address": hex(start + i),
+                    "address": hex(address_start + i),
                     "points_to": hex(val),
                     "in_text": False,
                     "self_reference": True,
@@ -213,7 +222,7 @@ def analyze_relocations(elf):
         if elf.lo <= at < elf.hi:
             target_section = ".text"
         for sec_name, sec in elf.secs.items():
-            if sec[4] <= at < sec[4] + sec[5] and sec_name != ".text":
+            if sec[3] <= at < sec[3] + sec[5] and sec_name != ".text":
                 target_section = sec_name
                 break
 
@@ -263,8 +272,14 @@ def analyze_cross_section(elf):
     # For each window, find all data references via lddw instructions
     window_data_refs = []
 
+    # lddw immediates are virtual addresses, so data-section extents must be
+    # compared against the section address (sec[3]), not its file offset
+    # (sec[4]). The two coincidentally agree only for identity-mapped ELFs.
     rodata = elf.secs.get(".rodata")
     data_rel_ro = elf.secs.get(".data.rel.ro")
+    rodata_range = ((rodata[3], rodata[3] + rodata[5]) if rodata else None)
+    data_rel_ro_range = (
+        (data_rel_ro[3], data_rel_ro[3] + data_rel_ro[5]) if data_rel_ro else None)
 
     for idx, start in enumerate(entries):
         end = boundaries[idx + 1]
@@ -278,9 +293,9 @@ def analyze_cross_section(elf):
                 imm_hi = struct.unpack_from("<I", elf.b, at + 12)[0]
                 val = imm_lo | (imm_hi << 32)
 
-                if rodata and rodata[4] <= val < rodata[4] + rodata[5]:
+                if rodata_range and rodata_range[0] <= val < rodata_range[1]:
                     refs["rodata"].append(hex(val))
-                elif data_rel_ro and data_rel_ro[4] <= val < data_rel_ro[4] + data_rel_ro[5]:
+                elif data_rel_ro_range and data_rel_ro_range[0] <= val < data_rel_ro_range[1]:
                     refs["data_rel_ro"].append(hex(val))
                 elif elf.lo <= val < elf.hi:
                     refs["text"].append(hex(val))

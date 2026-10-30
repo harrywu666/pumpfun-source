@@ -60,3 +60,47 @@ net-closure, first-andthen-net (Result retested, 2,184-2,192 B), net-andthen-pre
 `?`, 0.882), net-andthen-prefee-map (partial, 0.920), net-prefee-gross-chain (2,120 B, 0.912),
 add3-chain-all, add3-second-chain (rejected). Ledger rows carry the dedupe keys
 `0x80df8-main-d2cb88d-<trial>-v1`.
+
+## Round 2 (base: main 60bdd8a, which already contains PR #1199)
+
+Control: main 60bdd8a builds v3_buy_costs at 2,136 B, ratio 0.920, 19 differing original slots,
+17/17 calls; official 1020/188 (the 0x14f4e0 gain is main's), no losses. Caller-lane work merged
+since round 1 (0x83c00, 0x147ba0) did not change this function.
+
+### llc oracle (diagnostic only, `oracle/`)
+
+* `oracle/mkone.py` cuts the captured module IR (`--emit=llvm-ir`, lane-local build) down to
+  v3_buy_costs plus declarations. The SDK `llc -O3 -relocation-model=pic -mattr=+store-imm,+jmp-ext`
+  output for that one-function module is identical to the function in the built ELF.
+* `oracle/irexp.py` applies an IR edit and diffs the result against `win.py orig` (jump offsets
+  normalized). Scanners: `bwscan.py` (branch weights on every branch), `coldscan.py`,
+  `swapscan.py` (adjacent independent instructions), `blkscan_lib.py` (block moves),
+  `succscan.py` (branch inversions, phi rotations), `leakscan.py` (synthetic leak edges).
+
+### Results
+
+* **Full match exists at the IR level.** Adding `branch_weights 1:N` (N between 10 and 2e5) to the
+  Display::fmt failure branch inside the line-375 error closure (`to_string().expect` ->
+  `unwrap_failed`) gives 2,120 B and 0 differing lines. Adding the same 1:2000 weights to both
+  the 371 and 375 `to_string` branches also matches exactly. The default noreturn estimate
+  (about 1:1e6) does not flip it; the threshold is about 1:3e5.
+* Equivalent lever: cut the first `protocol_fee_split` overflow-panic edge to <= 1:1e7.
+* No flip from: 72 adjacent instruction swaps, 1,056 block moves, 32 branch inversions or phi
+  rotations, small 50/50 perturbations, `cold` on any callee or call site, merging every error
+  tail into one block, sharing the two splits' panic blocks, or argument/function attributes.
+* So the sret r6/r3 choice is decided by how much frequency leaks out of the 375 error path
+  (between the start of that path and the merged error block bb34) into a panic, compared with the
+  front panic leaks. The original's compiler evidently saw a 1:2000-style hint on the
+  `to_string` expect (rustc emits such hints for MIR `Assert`s; this rustc 1.79-dev emits none
+  for `expect`, and the module's 19 `!prof` nodes are all Assert panics).
+* Inserting any extra compare and branch (even with zero leak weight) in about 12 mid-function
+  blocks also flips the split, so the tie is extremely fragile. A source change can only use this
+  if it leaves the machine code identical.
+
+### Round-2 source trials (all 1020/188, no gains or losses)
+
+* 375-match (explicit match to Result), 375-okor-unit-maperr: byte-identical ELF to main.
+* 375-mapor-else: 2,152 B, 0.721 (worse).
+
+Ledger: f1e8d4d7913c4641b3c67835e1c23cb3 (oracle analysis), 0c977c06fe7e43ca8e3c3422f94adf73,
+669b989f9317445aa5447b85e548c16f, 7490a7b56c1744c4a60dc80f45c27acc.
