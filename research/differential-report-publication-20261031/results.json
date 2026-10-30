@@ -1,0 +1,33 @@
+{
+  "issue": "Three differential CLIs wrote their report directly to --output, so --output equal to the captured original, the IDL or the candidate replaced that input and still exited 0. A later reader of the evidence would then hash the report instead of the program.",
+  "base_revision": "e2455876b",
+  "affected": [
+    "scripts/pump_migrate_differential.py:53",
+    "scripts/pump_holder_distribution_differential.py:56",
+    "scripts/pump_amm_create_differential.py:78"
+  ],
+  "reproduction": {
+    "fixture": "a temp root holding copies of scripts/, the captured original, the IDL, the imported-lab fixtures, the token dependencies and a candidate",
+    "command": "python3 -B scripts/pump_amm_create_differential.py --candidate <candidate.so> --output <copied evidence/original/pump_amm/deployed.so>",
+    "base": "exit 0; the 10,485,715-byte ELF (head 7f454c46) is replaced by a 3,606,349-byte JSON report (head 7b227363)",
+    "after": "exit 1, ValueError: report output aliases an input, and the ELF is byte-identical",
+    "same_result": "pump_migrate_differential.py and pump_holder_distribution_differential.py behave identically for the original, the IDL and the candidate"
+  },
+  "change": "Construct pump_differential_output.PumpReport after argument parsing and publish through it, exactly as scripts/fees_admin_differential.py, fees_admin_transfer_differential.py, fees_config_differential.py and the nine PumpReport families do. The publisher refuses a destination that is an input (by resolved path, directory containment, symlink or hardlink), rejects a late alias before publishing, stages the bytes and fsyncs them, and only then replaces a prior report — so a failed run cannot truncate one.",
+  "tests": {
+    "new_test": "tests/test_differential_report_publication.py",
+    "before": "1 test, 9 failing subtests against the base scripts (original, IDL and candidate for each of the three); the bounded-run control is not exercised",
+    "after": "2 tests OK in 0.98s: the nine alias subtests plus one bounded real-VM run per migrate and holder script that publishes a complete receipt with no staging leftovers"
+  },
+  "related_suites": {
+    "scripts/test_pump_differential_optimized_mode.py": "3 tests OK",
+    "tests/test_pump_output_parents.py + tests/test_pump_amm_boost_report_publication.py + holder-capture suites": "17 tests, 2 pre-existing rustc setUpClass errors on macOS"
+  },
+  "required_checks": {
+    "scripts/test_tooling.py": "228 tests OK",
+    "scripts/verify_evidence.py": "9 captures verified"
+  },
+  "environment": {"platform": "macOS arm64", "python": "3.14.3"},
+  "not_claimed": "No differential result changes: the guard fires before any fixture or VM work, and the bounded runs compare one real case with zero mismatches. Full case coverage is not re-run here. scripts/donation_relay_differential.py keeps its direct write because it reads repro/ only, which this checkout and CI do not contain.",
+  "peer_note": "No live binding pins these three scripts; the research records naming them (parents.json, MANIFEST.json, inputs.json) are historical provenance, not drift guards."
+}

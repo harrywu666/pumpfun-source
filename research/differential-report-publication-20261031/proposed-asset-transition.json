@@ -1,0 +1,23 @@
+{
+  "scope": "Proposed maintained-script transition: three differential CLIs adopt the shared report publisher that their Fees and Pump siblings already use, so a report destination can no longer replace a captured input. Captures, historical packets and prior receipts are unchanged.",
+  "base": "e2455876b",
+  "files": {
+    "scripts/pump_migrate_differential.py": {
+      "before_sha256": "cb6c69e49d50f3a7ea1062161638ffac2f65efac46d9fe43649fd7c3c01397a5",
+      "proposed_sha256": "30543088f4717648cf69cc81e4838afcf68c10bc824fd390f4a114c1c1f107fa"
+    },
+    "scripts/pump_holder_distribution_differential.py": {
+      "before_sha256": "218913f358a67eeb14498537a3033f79293e6eef201e76a06ca5c736a85d6b96",
+      "proposed_sha256": "7329aac9c8897b260d3fac3a7d2d1ea82f6c8a5808620e2d7251a74e37f7081a"
+    },
+    "scripts/pump_amm_create_differential.py": {
+      "before_sha256": "241696dc582467d867f7e9d571fa003abeb755b2fed0746c06f8115d684beba0",
+      "proposed_sha256": "0f138a6499e039c1353ecad58b7759ddf773c13739a1d9471fca5493a7acb316"
+    }
+  },
+  "script_set_changed": false,
+  "program_source_changed": false,
+  "capture_bytes_changed": false,
+  "new_test": "tests/test_differential_report_publication.py",
+  "existing_ci_discovery": "contract-tests: python -B -m unittest discover -s tests -v"
+}
