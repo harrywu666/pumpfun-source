@@ -1,0 +1,2312 @@
+{
+  "method": {
+    "exhaustive_index": false,
+    "image_suffixes": [
+      ".so",
+      ".elf",
+      ".bin"
+    ],
+    "required_argument_source": "literal required=True in verify.py",
+    "tracked_only": true
+  },
+  "packets": [
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "all-contract-completion-20261028",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "amm-cache-admission",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "amm-lane-baseline",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-fee-table-split-boost-tf-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-fee-table-split-liquidity-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-fee-table-split-liquidity-mode-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-fee-table-split-liquidity-mode-tf-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-fee-table-split-liquidity-tf-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-fee-table-split-mode-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-fee-table-split-mode-tf-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-five-hop-fee-table-split-boost-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-five-hop-fee-table-split-boost-tf-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-five-hop-fee-table-split-liquidity-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-five-hop-fee-table-split-liquidity-mode-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-five-hop-fee-table-split-liquidity-tf-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-five-hop-fee-table-split-mode-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-five-hop-fee-table-split-mode-tf-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-four-hop-fee-table-split-boost-tf-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-four-hop-fee-table-split-liquidity-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-four-hop-fee-table-split-liquidity-mode-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-four-hop-fee-table-split-liquidity-tf-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-four-hop-fee-table-split-mode-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-four-hop-fee-table-split-mode-tf-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "amm-multi-hop-images",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-account-length-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-account-length-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-admin-rotation-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-admin-rotation-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-admin-setter-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-admin-setters-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-boost-gate-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-boost-trade-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-boost-trade-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-boost-window-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-buyback-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-buyback-config-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-buyback-config-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-claim-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-clock-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-coin-creator-boost-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-coin-creator-boost-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-coin-creator-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-create-pool-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-create-pool-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-created-pool-boost-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-creator-fee-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-creator-fee-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-cross-pool-boost-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-disable-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-disable-priority-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-disable-priority-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-dust-precision-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-dust-rounding-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-dynamic-fee-table-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-epoch-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-event-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-event-log-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-exact-out-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-exhaustion-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-extend-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-fee-bucket-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-fee-config-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-fee-config-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-fee-table-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-fee-table-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-fee-table-truncation-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-fee-table-truncation-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-fee-table-validation-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-fee-table-validation-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-fee-tier-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-global-config-validation-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-global-config-validation-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-gva-lifecycle-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-gva-validation-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-gva-validation-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-liquidity-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-liquidity-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-mode-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-mode-hop-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-mode-toggle-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-mode-toggles-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-multi-user-pool-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-pool-validation-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-pool-validation-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-reserved-fee-boost-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-reserved-fee-boost-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-reserved-fee-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-signer-authority-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-signer-validation-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-stable-fee-table-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-stable-fee-table-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-state-transition-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-state-transitions-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-token-claim-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-track-volume-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-transfer-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-user-wallet-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-uva-lifecycle-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-uva-lifecycle-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-uva-validation-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-uva-validation-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-vault-balance-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-vault-validation-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-vault-validation-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-withdraw-withheld-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-split-boost-tf-withdraw-withheld-five-hop-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": "research/amm-multi-hop-images/candidate.so.gz",
+        "control": "research/amm-multi-hop-images/control.so.gz",
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "amm-multi-hop-three-hop-fee-table-split-boost-chains-20261029",
+      "records_image_hashes": true,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "amm-recipe-provenance-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "amm-stack-diagnostic",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "amm-staging-source-containment-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "analyze-report-input-admission",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "analyze-runtime-root",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "captured-loader-revalidation",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "dispatch-evidence-root",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "failed-suite-evidence",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "fastbuild-source-archive",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "fees-exact-readme-stage-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "fees-linux-fresh-rebuild-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "fees-query-inputs",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "handler-closure-multihop-mayhem-20261029",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "imported-lab",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "local-validation-metadata-import",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "manifest-nested-target-inputs",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "mayhem-fresh-host-20261028",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "mayhem-linker-locators-20261028",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "object-command-replay",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-admin-cto-pool-sharing-cpi-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-admin-cto-validation-boundaries-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "pump-amm-admin-cto-pool-boundaries-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "pump-amm-create-pool-initial-liquidity-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "pump-amm-global-config-setter-layouts-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "pump-amm-instruction-decode-boundaries-20261030",
+      "records_image_hashes": false,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "pump-amm-liquidity-rounding-boundaries-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "pump-amm-sweep-fees-boundaries-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "pump-buyback-external",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-buyback-recipient-lookup-cu-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-claim-incentives-cashback-boundaries-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-create-v2-quote-control-scan-cu-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-create-v2-quote-mint-extension-allowlist-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-creator-fee-collect-boundaries-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-fee-recipient-lookup-cu-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "pump-fees-admin-cto-sharing-direct-20261030",
+      "records_image_hashes": false,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_fees/deployed.so"
+      },
+      "packet": "pump-fees-authority-transition-sequences-20261029",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_fees/deployed.so"
+      },
+      "packet": "pump-fees-buyback-init-withdraw-sequences-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_fees/deployed.so"
+      },
+      "packet": "pump-fees-donation-crank-sequences-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "pump-fees-donation-create-sequences-20261030",
+      "records_image_hashes": false,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "pump-fees-instruction-decode-boundaries-20261030",
+      "records_image_hashes": false,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "pump-fees-sharing-config-create-20261030",
+      "records_image_hashes": false,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_fees/deployed.so"
+      },
+      "packet": "pump-fees-social-claim-sequences-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_fees/deployed.so"
+      },
+      "packet": "pump-fees-social-claim-v2-token2022-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_fees/deployed.so"
+      },
+      "packet": "pump-fees-tier-lookup-cost-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_fees/deployed.so"
+      },
+      "packet": "pump-fees-tier-setter-cost-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "pump-fees-token2022-account-decode-boundaries-20261030",
+      "records_image_hashes": false,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "pump-fees-token2022-mint-decode-boundaries-20261030",
+      "records_image_hashes": false,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "pump-fees-update-shares-graduated-amm-route-20261030",
+      "records_image_hashes": false,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_fees/deployed.so",
+        "pump": "evidence/original/pump/deployed.so",
+        "pump_amm": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "pump-fees-update-shares-holder-cost-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "pump-fees-update-shares-v2-native-quote-route-20261030",
+      "records_image_hashes": false,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump_fees/deployed.so",
+        "pump": "evidence/original/pump/deployed.so",
+        "pump_amm": "evidence/original/pump_amm/deployed.so"
+      },
+      "packet": "pump-fees-update-shares-v2-token-quote-cost-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-global-admin-sequences-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-instruction-decode-boundaries-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "pump-multi-hop-corpus",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "pump-multihop-sell-fees-20261029",
+      "records_image_hashes": false,
+      "required": [
+        "--repo-root"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "pump-multihop-token-quote-20261029",
+      "records_image_hashes": false,
+      "required": [
+        "--repo-root"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-quote-control-admin-lifecycle-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-quote-control-list-scan-cu-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "pump-quote-dead-input",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "pump-seed-flags",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-sell-historical-curve-layouts-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "pump-stack-diagnostic",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-token-incentive-schedule-boundaries-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-trade-cu-scaling-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-trade-post-fee-quote-boundaries-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "pump-two-curve-inputs",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-v2-sharing-config-shareholders-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-v2-token-quote-cu-scaling-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-v2-token-quote-curve-rent-topup-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-v2-token-quote-transfer-fee-boundaries-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-v3-fee-tier-cu-scaling-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-v3-token-quote-boundaries-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {
+        "candidate": null,
+        "original": "evidence/original/pump/deployed.so"
+      },
+      "packet": "pump-v3-trade-boundaries-20261030",
+      "records_image_hashes": true,
+      "required": [
+        "--images"
+      ],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "quote-control-external-inputs",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "retained-multihop-outcome-admission",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "root-function-body-admission",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "sbpf-section-name-admission",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "score-staging-ownership",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "sell-accounting-report",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "swap-hop-residual-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "tooling-analysis-encoding-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "tooling-analysis-output-retention-20261029",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "tooling-arithmetic-shift-counts-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "tooling-compare-publication-20261031",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "tooling-disassembly-reproducibility-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "tooling-indirect-call-decoding-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "tooling-interior-string-references-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "tooling-legacy-capture-metadata-20261029",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "tooling-relocated-data-pointers-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "tooling-revalidation-invocation-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "tooling-revalidation-manifests-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "tooling-roadmap-call-classification-20261029",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "tooling-source-manifest-symlinks-20261029",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "tooling-terminal-error-patterns-20261030",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "tooling-token-program-constant-detector-20261029",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": true,
+      "images": {},
+      "packet": "window-attribution-resubmit-20261029",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    },
+    {
+      "has_verify": false,
+      "images": {},
+      "packet": "workflow-line-continuations",
+      "records_image_hashes": false,
+      "required": [],
+      "required_error": null
+    }
+  ],
+  "schema": 1,
+  "summary": {
+    "image_packets_recording_hashes": 37,
+    "image_resolution": {
+      "no-recorded-hashes": 9,
+      "partial": 37
+    },
+    "image_roles": {
+      "candidate": {
+        "not_recorded": 9,
+        "recorded": 37,
+        "resolved": 0,
+        "unresolved": 37
+      },
+      "original": {
+        "not_recorded": 9,
+        "recorded": 37,
+        "resolved": 37,
+        "unresolved": 0
+      },
+      "pump": {
+        "not_recorded": 44,
+        "recorded": 2,
+        "resolved": 2,
+        "unresolved": 0
+      },
+      "pump_amm": {
+        "not_recorded": 44,
+        "recorded": 2,
+        "resolved": 2,
+        "unresolved": 0
+      }
+    },
+    "packets_requiring_arguments": 48,
+    "packets_requiring_images": 46,
+    "packets_with_verify": 161,
+    "packets_without_verify": 43,
+    "required_options": {
+      "--images": 46,
+      "--repo-root": 2
+    },
+    "total_packets": 204
+  }
+}
