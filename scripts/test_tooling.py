@@ -2115,4 +2115,8 @@ class MemoryWidthDecodeTests(unittest.TestCase):
                 self.assertEqual(mismatches, 0)
 
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from tests.test_current_bindings_paths import CurrentBindingsPathTests
+
+
 if __name__=='__main__': unittest.main()
