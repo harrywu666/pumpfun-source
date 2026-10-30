@@ -30,15 +30,15 @@ def audit(report,candidate_sha256,expected_pairs=None):
 def main():
  p=argparse.ArgumentParser();p.add_argument('--report',type=Path,required=True);p.add_argument('--candidate',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--expected-pairs',type=int);a=p.parse_args()
  raw=a.report.read_bytes();report=json.loads(gzip.decompress(raw)if raw.startswith(b'\x1f\x8b')else raw);candidate=a.candidate.read_bytes();result=audit(report,hashlib.sha256(candidate).hexdigest(),a.expected_pairs);result['source_report_sha256']=hashlib.sha256(raw).hexdigest();result['checker_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest();require(not a.output.exists(),'Output already exists')
- with tempfile.NamedTemporaryFile('w',dir=a.output.parent,prefix='.'+a.output.name+'.',delete=False,encoding='utf-8',newline='\n')as stream:
-  staged=Path(stream.name);stream.write(json.dumps(result,indent=2)+'\n');stream.flush();os.fsync(stream.fileno())
- published=False
+ staged=None;published=False
  try:
+  with tempfile.NamedTemporaryFile('w',dir=a.output.parent,prefix='.'+a.output.name+'.',delete=False,encoding='utf-8',newline='\n')as stream:
+   staged=Path(stream.name);stream.write(json.dumps(result,indent=2)+'\n');stream.flush();os.fsync(stream.fileno())
   require(a.report.read_bytes()==raw and a.candidate.read_bytes()==candidate,'Input changed during audit');os.link(staged,a.output);published=True;require(a.report.read_bytes()==raw and a.candidate.read_bytes()==candidate,'Input changed during audit')
  except BaseException:
   if published:a.output.unlink(missing_ok=True)
   raise
  finally:
-  staged.unlink(missing_ok=True)
+  if staged is not None:staged.unlink(missing_ok=True)
  print(json.dumps({k:v for k,v in result.items()if k!='mismatches'},indent=2));require(not result['mismatches'],'Strict ordered logs differ')
 if __name__=='__main__':main()
