@@ -1,0 +1,16 @@
+{
+  "scope": "Proposed maintained-script asset transition for macOS v144 toolchain archive publication; retained archives, inputs and historical receipts remain unchanged.",
+  "base": "5889e795eba64e85e613b4409921323bfecec414",
+  "files": {
+    "scripts/pump_macos_v144_qualification.py": {
+      "before_sha256": "6dfeb395fbc8090f3a5a6f17be571bfe3706da05faa54bec04e5c8628b16623a",
+      "proposed_sha256": "b86b08bc2970f8b52825e49d49cac10eb9ff49314a9da5773e3af68520e11095"
+    }
+  },
+  "script_set_changed": false,
+  "program_source_changed": false,
+  "capture_bytes_changed": false,
+  "new_test": "tests/test_pump_macos_v144_archive_publication.py",
+  "existing_ci_discovery": "contract-tests: python -B -m unittest discover -s tests -v",
+  "historical_checkpoint_note": "The qualification packet research/pump-macos-v144-qualification-20261027/ is unchanged; only the qualification driver's archive download path is affected."
+}

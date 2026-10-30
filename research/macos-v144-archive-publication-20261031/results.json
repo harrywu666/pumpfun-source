@@ -1,0 +1,38 @@
+{
+  "issue": "pump_macos_v144_qualification.py downloads toolchain archives onto the retained archive path before verifying the digest.",
+  "base_revision": "5889e795eba64e85e613b4409921323bfecec414",
+  "affected": "scripts/pump_macos_v144_qualification.py:49-50 at base",
+  "reproduction": {
+    "driver": "private script: import the module, patch OUT/EVIDENCE/SPEC/ROOT and platform, symlink OUT/fixture.tar.bz2 to an external file, mock urlopen to return b'synthetic download'",
+    "before": {
+      "raised": "AssertionError: fixture",
+      "external_target_bytes": "synthetic download",
+      "target_replaced": true,
+      "archive_still_a_symlink": true
+    },
+    "after": {
+      "raised": "FileExistsError: refusing to replace retained archive: ...",
+      "external_target_bytes": "external retained bytes\\n",
+      "target_replaced": false,
+      "archive_still_a_symlink": true
+    }
+  },
+  "tests": {
+    "new_test": "tests/test_pump_macos_v144_archive_publication.py",
+    "before": "4 tests: 3 errors (no download_archive) and 1 failure (archive target overwritten)",
+    "after": "4 tests: OK"
+  },
+  "required_checks": {
+    "scripts/test_tooling.py": "217 tests OK (unchanged by this packet)",
+    "scripts/verify_evidence.py": "9 captures verified"
+  },
+  "environment": {
+    "platform": "macOS arm64",
+    "python": "3.14.3"
+  },
+  "unchanged": [
+    "retained archives and extracted toolchains",
+    "research/pump-macos-v144-qualification-20261027/ inputs and receipts",
+    "program source and captured binaries"
+  ]
+}
