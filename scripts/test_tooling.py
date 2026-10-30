@@ -2115,4 +2115,7 @@ class MemoryWidthDecodeTests(unittest.TestCase):
                 self.assertEqual(mismatches, 0)
 
 
+from test_fees_error_messages_exit import FeesErrorMessageExitTests
+
+
 if __name__=='__main__': unittest.main()
