@@ -14,6 +14,23 @@ import pump_diagnostic_audit as gate  # noqa: E402
 
 
 class DiagnosticAuditPublicationTests(unittest.TestCase):
+    def test_failed_staging_leaves_no_report_or_temporary_file(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            report = root / "report.json"
+            output = root / "audit.json"
+            report.write_text(json.dumps({"suites": {"case": [{
+                "original": {"logs": ["before"]},
+                "candidate": {"logs": ["before"]},
+            }]}}), encoding="utf-8")
+            with mock.patch.object(gate.os, "fsync", side_effect=OSError("staging failed")), \
+                    mock.patch.object(sys, "argv", ["pump_diagnostic_audit.py",
+                        "--report", str(report), "--output", str(output)]):
+                with self.assertRaisesRegex(OSError, "staging failed"):
+                    gate.main()
+            self.assertFalse(output.exists())
+            self.assertEqual(list(root.glob(".audit.json.*")), [])
+
     def test_input_change_during_audit_leaves_no_report(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

@@ -125,20 +125,21 @@ def main():
     result['source_report_sha256'] = hashlib.sha256(raw).hexdigest()
     result['script_sha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     # Audits are new evidence: never replace an input or a prior receipt.
-    with tempfile.NamedTemporaryFile(
-        'w',
-        dir=args.output.parent,
-        prefix='.' + args.output.name + '.',
-        delete=False,
-        encoding='utf-8',
-        newline='\n',
-    ) as stream:
-        staged = Path(stream.name)
-        stream.write(json.dumps(result, indent=2) + '\n')
-        stream.flush()
-        os.fsync(stream.fileno())
+    staged = None
     published = False
     try:
+        with tempfile.NamedTemporaryFile(
+            'w',
+            dir=args.output.parent,
+            prefix='.' + args.output.name + '.',
+            delete=False,
+            encoding='utf-8',
+            newline='\n',
+        ) as stream:
+            staged = Path(stream.name)
+            stream.write(json.dumps(result, indent=2) + '\n')
+            stream.flush()
+            os.fsync(stream.fileno())
         if args.report.read_bytes() != raw:
             raise ValueError('source report changed during audit')
         os.link(staged, args.output)
@@ -150,7 +151,8 @@ def main():
             args.output.unlink(missing_ok=True)
         raise
     finally:
-        staged.unlink(missing_ok=True)
+        if staged is not None:
+            staged.unlink(missing_ok=True)
     print(json.dumps({'log_bearing_cases': result['log_bearing_cases'], 'mismatches': len(result['mismatches'])}))
     return bool(result['mismatches'])
 
