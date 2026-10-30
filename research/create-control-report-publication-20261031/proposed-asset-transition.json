@@ -1,0 +1,15 @@
+{
+  "scope": "Proposed maintained-script transition: the create-control differential publishes its receipt through the shared report publisher, so --output can no longer replace a captured input, the IDL, the imported-lab snapshot, a dependency image, the Mayhem image or the candidate. Captures, historical packets and prior receipts are unchanged.",
+  "base": "52c0b087c",
+  "files": {
+    "scripts/pump_create_control_differential.py": {
+      "before_sha256": "9e91f912ea6a031518e572e76c7341f2ed32921774086a39cd43d9a996163f7d",
+      "proposed_sha256": "6818e695530b1fd88563c7b6cda84e7159be27bc58023b80e389a91943a86a35"
+    }
+  },
+  "script_set_changed": false,
+  "program_source_changed": false,
+  "capture_bytes_changed": false,
+  "new_test": "tests/test_create_control_report_publication.py",
+  "existing_ci_discovery": "contract-tests: python -B -m unittest discover -s tests -v"
+}

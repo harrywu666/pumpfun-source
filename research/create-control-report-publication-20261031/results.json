@@ -1,0 +1,32 @@
+{
+  "issue": "scripts/pump_create_control_differential.py wrote its report with a plain write_bytes to whatever --output named, so --output pointing at any input it reads replaced that input with the gzip receipt and still exited 0. A replaced captured ELF then makes every later run of the same fixture fail while loading it.",
+  "base_revision": "52c0b087c",
+  "affected": [
+    "scripts/pump_create_control_differential.py:91",
+    "scripts/pump_create_control_differential.py:95"
+  ],
+  "reproduction": {
+    "fixture": "a temp root holding copies of scripts/, evidence/original/pump/deployed.so, evidence/original/mayhem/deployed.so, evidence/upstream/pump.json, research/imported-lab/analysis/pump_fun/config-snapshot.json, the four token dependency images and a candidate",
+    "command": "python -B scripts/pump_create_control_differential.py --candidate <candidate.so> --output <copied evidence/original/pump/deployed.so>",
+    "base": "exit 0, stdout '85 cases 0 mismatches'; the 10,485,715-byte ELF (head 7f454c46, sha256 7a19affa...) is replaced by a gzip report (head 1f8b0800, sha256 74a4569f...); the next run of the same fixture dies loading its own program",
+    "after": "exit 1, ValueError: report output aliases an input, and the ELF is byte-identical",
+    "same_result": "the IDL, the imported-lab config snapshot, the spl_token dependency image, the Mayhem image and the candidate are replaced the same way on the base script"
+  },
+  "change": "Construct pump_differential_output.PumpReport after argument parsing and publish through it, exactly as the Fees, Pump migrate/holder/amm-create and eleven other PumpReport families do. The publisher refuses a destination that is an input (by resolved path, directory containment, symlink or hardlink), rechecks for a late alias, stages the bytes and fsyncs them, and only then replaces a prior report, so a failed run cannot truncate one. evidence/original/mayhem/deployed.so is passed as an extra input because the shared defaults do not name it.",
+  "tests": {
+    "new_test": "tests/test_create_control_report_publication.py",
+    "before": "2 tests, 6 failing subtests against the base script (original, Mayhem image, IDL, config snapshot, dependency image and candidate all exit 0 with the input replaced); the bounded-run control is not reached",
+    "after": "2 tests OK in 0.59s: the six alias subtests plus one bounded real-VM run that publishes a complete receipt with no staging leftovers"
+  },
+  "related_suites": {
+    "tests/test_pump_differentials_normal_python.py": "3 tests OK",
+    "full run": "85 cases, 0 mismatches, report parses with candidate_sha256 equal to original_sha256 for the captured original"
+  },
+  "required_checks": {
+    "scripts/test_tooling.py": "228 tests OK",
+    "scripts/verify_evidence.py": "9 captures verified; no source rebuild claimed"
+  },
+  "environment": {"platform": "macOS arm64", "python": "3.14.3"},
+  "not_claimed": "No differential result changes: the guard fires before any fixture or VM work, and the full 85-case run still reports zero mismatches. The alias test restores a pristine input after each subtest so a base overwrite cannot cascade into the next subtest; it does not scan the rest of the repository for other direct report writers.",
+  "peer_note": "No live binding pins this script's bytes; reconstruction/pump-main/lanes records name it historically, and those records are provenance, not drift guards."
+}
