@@ -89,6 +89,11 @@ def reject_attached_script(arg):
     # separate-argument check never sees.
     if isinstance(arg, str) and arg.startswith('-T') and arg != '-T':
         raise AssertionError('attached linker script is not admitted: ' + arg)
+    if isinstance(arg, str) and (
+        arg == '--call-graph-ordering-file'
+        or arg.startswith('--call-graph-ordering-file=')
+    ):
+        raise AssertionError('call-graph ordering file is not admitted: ' + arg)
 
 
 def declared_inputs(args):
