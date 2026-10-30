@@ -1,0 +1,32 @@
+{
+  "issue": "scripts/pump_set_creator_differential.py hashed its inputs and re-checked them, then wrote the receipt with write_text to whatever --output named. Nothing compared the destination with those inputs, so --output pointing at the captured original, the IDL, one of the scripts it imports or the candidate replaced that input with the report and still exited 0.",
+  "base_revision": "52c0b087c",
+  "affected": [
+    "scripts/pump_set_creator_differential.py:80"
+  ],
+  "reproduction": {
+    "fixture": "a temp root holding copies of scripts/, evidence/ and research/imported-lab/, plus a candidate",
+    "command": "python -B scripts/pump_set_creator_differential.py --candidate <candidate.so> --output <copied evidence/upstream/pump.json>",
+    "base": "exit 0, stdout '509 []'; the 328,788-byte IDL (sha256 7616681e...) is replaced by the report (sha256 86656122..., head '{\\n  \"scope\": \"Normally signed synthetic')",
+    "after": "exit 1, ValueError: report output aliases an input, and the IDL is byte-identical",
+    "same_result": "the captured original and scripts/fees_admin_differential.py are replaced the same way on the base script; the candidate is refused by the candidate binding"
+  },
+  "change": "Construct pump_differential_output.PumpReport(a.output, ROOT, a.candidate, __file__, extra_inputs=paths) right after the input list is built and call publisher.check() immediately before the write, so a late retarget is caught too. The writer stays write_text with encoding='utf-8', newline='\\n': scripts/test_pump_receipt_encoding.py pins exactly that shape for this file, and PumpReport.write would take the receipt out of that enforced list. The defect here is destination admission, not durability, so adoption is deliberately partial and the publisher's staging is not used.",
+  "tests": {
+    "new_test": "tests/test_set_creator_report_admission.py",
+    "before": "2 tests, 4 failing subtests against the base script (original, IDL, imported script, candidate: each exits 0 with the input replaced); the bounded-run control is not reached",
+    "after": "2 tests OK in 0.60s: the four alias subtests plus one bounded real-VM run that publishes a complete one-case receipt"
+  },
+  "related_suites": {
+    "tests/test_pump_differentials_normal_python.py": "3 tests OK",
+    "scripts/test_pump_receipt_encoding.py": "1 test OK, checked count still 5",
+    "full run": "509 cases, 0 mismatches, exit 0"
+  },
+  "required_checks": {
+    "scripts/test_tooling.py": "228 tests OK",
+    "scripts/verify_evidence.py": "9 captures verified; no source rebuild claimed"
+  },
+  "environment": {"platform": "macOS arm64", "python": "3.14.3"},
+  "not_claimed": "No differential result changes: admission runs before any fixture work and the full 509-case run is unchanged. The receipt is still written directly, not staged, so a crash mid-write can still truncate a prior report; that is pre-existing and out of scope here.",
+  "peer_note": "No live binding pins this script's bytes; localnet/pump_set_creator_transactions.py and pump_validate_all.py name it as a runner, not as a hash guard."
+}

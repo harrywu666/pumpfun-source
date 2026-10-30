@@ -1,0 +1,15 @@
+{
+  "scope": "Proposed maintained-script transition: the set-creator differential refuses a report destination that is one of its inputs, using the shared publisher's destination admission while keeping its UTF-8/LF-pinned write_text receipt. Captures, historical packets and prior receipts are unchanged.",
+  "base": "52c0b087c",
+  "files": {
+    "scripts/pump_set_creator_differential.py": {
+      "before_sha256": "d61f88d7f38fbd927d23430b95cc94495cd8a1f05f4cfce6f8472d529224ec3c",
+      "proposed_sha256": "2e9b29d40452d301f0356ea027a187a95dbcfbcbb01570938777a5cdb4ea69be"
+    }
+  },
+  "script_set_changed": false,
+  "program_source_changed": false,
+  "capture_bytes_changed": false,
+  "new_test": "tests/test_set_creator_report_admission.py",
+  "existing_ci_discovery": "contract-tests: python -B -m unittest discover -s tests -v"
+}
