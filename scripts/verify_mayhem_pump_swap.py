@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """Independent offline saved-receipt checks for both Mayhem PumpSwap trades; no VM or RPC."""
+if not __debug__:
+    raise SystemExit("Normal Python is required; do not use -O.")
+
 from pathlib import Path
 import argparse,base64,gzip,hashlib,json,struct
 from solders.pubkey import Pubkey

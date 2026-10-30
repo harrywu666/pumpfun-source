@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """Offline verification of saved signed sell receipts; never executes a VM or RPC."""
+if not __debug__:
+    raise SystemExit("Normal Python is required; do not use -O.")
+
 from pathlib import Path
 import argparse, base64, gzip, hashlib, json, re, struct
 from solders.pubkey import Pubkey
