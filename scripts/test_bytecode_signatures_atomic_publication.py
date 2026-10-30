@@ -12,7 +12,6 @@ from unittest import mock
 SCRIPTS = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPTS))
 import bytecode_signatures as tool
-import deep_disassembly as publisher
 
 
 def generate(output):
@@ -69,11 +68,11 @@ class BytecodeSignaturesAtomicPublicationTests(unittest.TestCase):
     def test_native_publish_does_not_replace_a_late_empty_destination(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / 'packet'
-            rename = publisher.rename_directory
+            rename = tool.rename_directory
             def competing_writer(source, destination, **kwargs):
                 output.mkdir()
                 return rename(source, destination, **kwargs)
-            with mock.patch.object(publisher, 'rename_directory', competing_writer):
+            with mock.patch.object(tool, 'rename_directory', competing_writer):
                 with self.assertRaises(FileExistsError):
                     generate(output)
             self.assertEqual(list(output.iterdir()), [])

@@ -19,6 +19,8 @@ Usage:
 """
 import argparse
 import collections
+import ctypes
+import errno
 import hashlib
 import json
 import os
@@ -26,12 +28,12 @@ import shutil
 import stat
 import struct
 import sys
+import uuid
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "scripts"))
 from window_elf_reader import Elf
-from deep_disassembly import directory_identity, publish_packet, temporary_sibling
 
 PROGRAMS = ["pump", "pump_amm", "mayhem"]
 
@@ -568,7 +570,13 @@ def main():
     except BaseException:
         shutil.rmtree(staging, ignore_errors=True)
         raise
-    publish_packet(staging, output_dir, identity)
+    if identity is None:
+        publish_new_packet(staging, output_dir)
+    else:
+        # Replacement needs native directory exchange. Keep that optional so
+        # the generated, partial-program packet remains a standalone script.
+        from deep_disassembly import publish_packet
+        publish_packet(staging, output_dir, identity)
 
 
 def expected_packet_files(programs=None):
@@ -582,6 +590,52 @@ def expected_packet_files(programs=None):
         *[f"{program}-{kind}.json" for program in programs
           for kind in ("patterns", "signatures")],
     }
+
+
+def temporary_sibling(output_dir, label):
+    while True:
+        staging = output_dir.parent / (
+            f".{output_dir.name}.{label}-{os.getpid()}-{uuid.uuid4().hex}")
+        try:
+            staging.mkdir()
+        except FileExistsError:
+            continue
+        return staging
+
+
+def rename_directory(source, destination):
+    """Atomically publish a new directory without replacing a late writer."""
+    if os.name == "nt":
+        source.rename(destination)
+        return
+    library = ctypes.CDLL(None, use_errno=True)
+    if sys.platform == "darwin":
+        rename = getattr(library, "renamex_np", None)
+        args = (os.fsencode(source), os.fsencode(destination), 4)
+        types = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+    elif sys.platform.startswith("linux"):
+        rename = getattr(library, "renameat2", None)
+        args = (-100, os.fsencode(source), -100, os.fsencode(destination), 1)
+        types = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int,
+                 ctypes.c_char_p, ctypes.c_uint]
+    else:
+        rename = None
+    if rename is None:
+        raise OSError(errno.ENOTSUP,
+                      "atomic packet publication unavailable; use a supported host")
+    rename.argtypes = types
+    rename.restype = ctypes.c_int
+    if rename(*args) != 0:
+        code = ctypes.get_errno()
+        raise OSError(code, os.strerror(code), str(destination))
+
+
+def publish_new_packet(staging, output_dir):
+    try:
+        rename_directory(staging, output_dir)
+    except BaseException:
+        shutil.rmtree(staging, ignore_errors=True)
+        raise
 
 
 def linked(path):
@@ -613,6 +667,9 @@ def prepare_destination(output_dir):
                          and not (output_dir / name).is_file()))
     if invalid:
         raise ValueError("packet entry is not a regular file: " + ", ".join(invalid))
+    if not output_dir.exists():
+        return None
+    from deep_disassembly import directory_identity
     return directory_identity(output_dir)
 
 
