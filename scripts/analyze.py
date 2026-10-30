@@ -2,6 +2,62 @@
 """Offline ELF layout, string provenance and public-interface inventory."""
 import hashlib,json,pathlib,re,struct
 ROOT=pathlib.Path(__file__).resolve().parents[1]
+IDL_INTERNAL_NAMES = (
+    'IdlCreateAccount', 'IdlResizeAccount', 'IdlCloseAccount',
+    'IdlCreateBuffer', 'IdlWrite', 'IdlSetAuthority', 'IdlSetBuffer',
+)
+
+
+def known_instruction_names(name):
+    """Return IDL instruction names in the CamelCase form used by logs."""
+    path = ROOT / 'evidence/upstream' / f'{name}.json'
+    if not path.is_file():
+        return ()
+    data = json.loads(path.read_text())
+    names = {
+        ''.join(part[:1].upper() + part[1:] for part in item['name'].split('_'))
+        for item in data.get('instructions', [])
+    }
+    names.update(IDL_INTERNAL_NAMES)
+    return tuple(sorted(names, key=len, reverse=True))
+
+
+def program_names():
+    """Use the archived mapping when present, otherwise the captured programs."""
+    path = ROOT / 'repro/programs.json'
+    if path.is_file():
+        return json.loads(path.read_text())
+    order = ('pump', 'pump_amm', 'pump_fees', 'mayhem')
+    return [
+        name for name in order
+        if (ROOT / 'evidence/original' / name / 'deployed.so').is_file()
+    ]
+
+
+def instruction_log_names(b, known=()):
+    """Extract exact instruction names, longest known prefix first.
+
+    A log site may be immediately followed by a lowercase suffix or another
+    string, e.g. `Instruction: ClaimCashbacksol_destination...`. Matching the
+    known IDL names first avoids absorbing that adjacent text; programs without
+    an IDL keep the original alphanumeric fallback.
+    """
+    names = set()
+    for match in re.finditer(rb'Instruction: ', b):
+        rest = b[match.end():]
+        exact = next((name for name in known if rest.startswith(name.encode())), None)
+        if exact is not None:
+            names.add(exact)
+            continue
+        fallback = re.match(rb'[A-Z][A-Za-z0-9]*', rest)
+        if fallback:
+            name = fallback.group().decode()
+            if name.endswith('Instruction') and name != 'Instruction':
+                name = name[:-len('Instruction')]
+            names.add(name)
+    return sorted(names)
+
+
 def elf_layout(b):
     assert b[:6]==b'\x7fELF\x02\x01'
     h=struct.unpack_from('<HHIQQQIHHHHHH',b,16)
@@ -21,10 +77,10 @@ def elf_layout(b):
     return {'machine':machine,'entry':entry,'flags':flags,'elf_extent':end,'allocation_bytes':len(b),'trailing_bytes':len(b)-end,'trailing_all_zero':not any(b[end:]),'elf_sha256':hashlib.sha256(b[:end]).hexdigest(),'sections':sections}
 def analyze():
     out={}
-    for name in json.loads((ROOT/'repro/programs.json').read_text()):
+    for name in program_names():
         b=(ROOT/f'evidence/original/{name}/deployed.so').read_bytes(); r=elf_layout(b)
         r['source_path_evidence']=[{'offset':m.start(),'path':m.group().decode()} for m in re.finditer(rb'(?:programs|/home/runner/work/platform-tools)[a-zA-Z0-9_./-]+?\.rs',b)]
-        r['instruction_log_names']=sorted(set(m.group(1).decode() for m in re.finditer(rb'Instruction: ([A-Z][A-Za-z0-9]*?)(?=Instruction:|[^A-Za-z0-9]|$)',b)))
+        r['instruction_log_names']=instruction_log_names(b, known_instruction_names(name))
         r['compiler_version']='unresolved'; r['dependency_versions']='unresolved'; out[name]=r
     (ROOT/'evidence/binary-analysis.json').write_text(json.dumps(out,indent=2)+'\n')
     inventory={}
