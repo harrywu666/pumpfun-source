@@ -70,11 +70,11 @@ pub struct SellV2<'info>{
  #[account(seeds=[b"__event_authority"],bump)]pub event_authority:AccountInfo<'info>,
  pub program:Program<'info,crate::program::PumpRecovered>,
 }
-fn add(a:u64,b:u64)->Result<u64>{a.checked_add(b).ok_or_else(||error!(PumpError::Overflow))}
+const NO_FEE:Option<crate::trade::native_transfer_fee::Fee>=None;fn add(a:u64,b:u64)->Result<u64>{a.checked_add(b).ok_or_else(||error!(PumpError::Overflow))}
 fn sub(a:u64,b:u64)->Result<u64>{a.checked_sub(b).ok_or_else(||error!(PumpError::Overflow))}
-fn narrow(a:u128)->Result<u64>{u64::try_from(a).map_err(|_|error!(PumpError::Truncation))}
-pub fn execute(ctx:Context<SellV2>,amount:u64,minimum:u64)->Result<()>{
- let a=&mut *ctx.accounts;let fee_recipient=&a.fee_recipient;let buyback_fee_recipient=&a.buyback_fee_recipient;
+fn narrow(a:u128)->Result<u64>{u64::try_from(a).map_err(|_|error!(PumpError::Truncation))}fn is_native_quote(quote_mint:Pubkey)->bool{quote_mint==Pubkey::default()}
+#[inline(always)]pub fn execute(ctx:Context<SellV2>,amount:u64,minimum:u64)->Result<()>{
+ let a=&mut *ctx.accounts;let fee_recipient=&a.fee_recipient;let buyback_fee_recipient=&a.buyback_fee_recipient;let (base_token_program,base_mint)=(&a.base_token_program,&a.base_mint);
  crate::trade_types::prepare_bonding_curve(&a.bonding_curve,&a.system_program,&a.user)?;
 
 
@@ -339,9 +339,9 @@ pub fn execute(ctx:Context<SellV2>,amount:u64,minimum:u64)->Result<()>{
 
 
  let quote=u64::try_from(c.sell_quote(amount)?).map_err(|_|error!(PumpError::Truncation))?;
- let (pf,cf,protocol_fee_bps,creator_fee_bps)=if a.user.key()==a.global.whitelist_pda{(0,0,0,0)}else{crate::legacy_sell::fee_cpi::trade_fees(
+ let (cf,pf,protocol_fee_bps,creator_fee_bps)=if a.global.whitelist_pda==a.user.key(){(0,0,0,0)}else{let (pf,cf,p,c)=crate::legacy_sell::fee_cpi::trade_fees(
   &a.global,&a.bonding_curve,&a.base_mint,&a.fee_config,&a.fee_program,a.program.as_ref(),quote
- )?};
+ )?;(cf,pf,p,c)};
 
 
 
@@ -366,7 +366,7 @@ pub fn execute(ctx:Context<SellV2>,amount:u64,minimum:u64)->Result<()>{
   .ok_or_else(||error!(PumpError::Overflow))?
   .checked_sub(cf)
   .ok_or_else(||error!(PumpError::Overflow))?;
- let transfer_fee=if native{None}else{crate::transfer_fee_recovered::get_transfer_fee(&a.quote_mint.to_account_info())?};
+ let transfer_fee=if native{NO_FEE}else{crate::transfer_fee_recovered::get_transfer_fee(&a.quote_mint.to_account_info())?};
  let net_output=crate::transfer_fee_recovered::post_fee_amount(&transfer_fee,output)?;
 
 
@@ -385,29 +385,29 @@ pub fn execute(ctx:Context<SellV2>,amount:u64,minimum:u64)->Result<()>{
 
  let quote_transfer_fee=output.checked_sub(net_output).ok_or_else(||error!(PumpError::Overflow))?;
  a.bonding_curve.apply_sell(amount,quote)?;
- user_token_transfers::transfer_user_tokens(&a.base_token_program,&a.associated_base_user,&a.associated_base_bonding_curve,a.user.as_ref(),a.base_mint.decimals,a.base_mint.as_ref().as_ref(),amount)?;
+ user_token_transfers::transfer_user_tokens(base_token_program,&a.associated_base_user,&a.associated_base_bonding_curve,a.user.as_ref(),base_mint.decimals,base_mint.as_ref().as_ref(),amount)?;
   if a.user.key()==a.global.whitelist_pda{a.associated_base_bonding_curve.reload()?;a.associated_base_user.reload()?;let quote_mint=a.bonding_curve.quote_mint;a.bonding_curve.sync_virtual_quote_reserves(a.associated_base_bonding_curve.amount,a.associated_base_user.amount,&quote_mint)?;}
   if a.user_volume_accumulator.user==Pubkey::default(){a.user_volume_accumulator.user=a.user.key();}
  if cf>0{if a.bonding_curve.is_cashback_coin{
- crate::trade::quote_payments::transfer_to_owned(native,a.base_mint.as_ref().as_ref(),a.bonding_curve.as_ref(),a.user_volume_accumulator.to_account_info(),cf,&a.quote_token_program,a.quote_mint.decimals,a.quote_mint.as_ref().as_ref(),if native{None}else{Some(a.associated_quote_bonding_curve.as_ref())},if native{None}else{Some(a.associated_user_volume_accumulator.as_ref())},ctx.bumps.bonding_curve)?;
+ pay_owned(native,&a.base_mint,a.bonding_curve.as_ref(),a.user_volume_accumulator.to_account_info(),cf,&a.quote_token_program,&a.quote_mint,if native{None}else{Some(a.associated_quote_bonding_curve.as_ref())},if native{None}else{Some(a.associated_user_volume_accumulator.as_ref())},ctx.bumps.bonding_curve)?;
  crate::token_incentives::volume_accumulator::record_cashback_earned(&mut a.user_volume_accumulator,cf,native)?;
  }else{crate::buy_v2::native_payments::ensure_rent_exempt(0,&a.system_program,&a.user,&a.creator_vault)?;
- crate::trade::quote_payments::transfer_to_owned(native,a.base_mint.as_ref().as_ref(),a.bonding_curve.as_ref(),a.creator_vault.to_account_info(),cf,&a.quote_token_program,a.quote_mint.decimals,a.quote_mint.as_ref().as_ref(),if native{None}else{Some(a.associated_quote_bonding_curve.as_ref())},if native{None}else{Some(a.associated_creator_vault.as_ref())},ctx.bumps.bonding_curve)?;
+ pay_owned(native,&a.base_mint,a.bonding_curve.as_ref(),a.creator_vault.to_account_info(),cf,&a.quote_token_program,&a.quote_mint,if native{None}else{Some(a.associated_quote_bonding_curve.as_ref())},if native{None}else{Some(a.associated_creator_vault.as_ref())},ctx.bumps.bonding_curve)?;
  }}
- crate::trade::quote_payments::transfer_to_user(native,a.base_mint.as_ref().as_ref(),a.bonding_curve.as_ref(),a.user.as_ref(),output,&a.quote_token_program,a.quote_mint.decimals,a.quote_mint.as_ref().as_ref(),if native{None}else{Some(a.associated_quote_bonding_curve.as_ref())},if native{None}else{Some(a.associated_quote_user.as_ref())},ctx.bumps.bonding_curve)?;
+ pay_user(native,&a.base_mint,a.bonding_curve.as_ref(),a.user.as_ref(),output,&a.quote_token_program,&a.quote_mint,if native{None}else{Some(a.associated_quote_bonding_curve.as_ref())},if native{None}else{Some(a.associated_quote_user.as_ref())},ctx.bumps.bonding_curve)?;
  let (bf,protocol_fee)=crate::buy_v2::recipient_payments::split_protocol_fee(&a.global,pf,a.bonding_curve.is_mayhem_mode);
- crate::trade::quote_payments::transfer_to_recipient(native,a.base_mint.as_ref().as_ref(),a.bonding_curve.as_ref(),&buyback_fee_recipient,bf,&a.quote_token_program,a.quote_mint.decimals,a.quote_mint.as_ref().as_ref(),if native{None}else{Some(a.associated_quote_bonding_curve.as_ref())},if native{None}else{Some(a.associated_quote_buyback_fee_recipient.as_ref())},ctx.bumps.bonding_curve)?;
- crate::trade::quote_payments::transfer_to_recipient(native,a.base_mint.as_ref().as_ref(),a.bonding_curve.as_ref(),&fee_recipient,protocol_fee,&a.quote_token_program,a.quote_mint.decimals,a.quote_mint.as_ref().as_ref(),if native{None}else{Some(a.associated_quote_bonding_curve.as_ref())},if native{None}else{Some(a.associated_quote_fee_recipient.as_ref())},ctx.bumps.bonding_curve)?;
+ pay_recipient(native,&a.base_mint,a.bonding_curve.as_ref(),&buyback_fee_recipient,bf,&a.quote_token_program,&a.quote_mint,if native{None}else{Some(a.associated_quote_bonding_curve.as_ref())},if native{None}else{Some(a.associated_quote_buyback_fee_recipient.as_ref())},ctx.bumps.bonding_curve)?;
+ pay_recipient(native,&a.base_mint,a.bonding_curve.as_ref(),&fee_recipient,protocol_fee,&a.quote_token_program,&a.quote_mint,if native{None}else{Some(a.associated_quote_bonding_curve.as_ref())},if native{None}else{Some(a.associated_quote_fee_recipient.as_ref())},ctx.bumps.bonding_curve)?;
  let c=&a.bonding_curve;let virtual_token_reserves=c.virtual_token_reserves;let virtual_quote_reserves=c.virtual_quote_reserves;let real_token_reserves=c.real_token_reserves;let real_quote_reserves=c.real_quote_reserves;let creator=c.creator;let quote_mint=c.quote_mint;
- let shareholders=crate::distribution::sharing_config_shareholders(&a.sharing_config.to_account_info())?.unwrap_or_default();let is_sol=quote_mint==Pubkey::default();
+ let shareholders=crate::distribution::sharing_config_shareholders(&a.sharing_config.to_account_info())?.unwrap_or_default();let is_sol=is_native_quote(quote_mint);
   let ev=TradeEvent{user:a.user.key(),mint:a.base_mint.key(),sol_amount:if is_sol{quote}else{0},token_amount:amount,is_buy:false,
    virtual_sol_reserves:if is_sol{virtual_quote_reserves}else{0},virtual_token_reserves,real_sol_reserves:if is_sol{real_quote_reserves}else{0},real_token_reserves,timestamp:Clock::get()?.unix_timestamp,
    fee_recipient:fee_recipient.key(),fee_basis_points:protocol_fee_bps,fee:pf,creator,
    creator_fee_basis_points:if c.is_cashback_coin{0}else{creator_fee_bps},creator_fee:if c.is_cashback_coin{0}else{cf},holder_rewards_bps:if c.is_holder_reward{creator_fee_bps}else{0},holder_rewards:if c.is_holder_reward{cf}else{0},
    track_volume:false,total_unclaimed_tokens:0,total_claimed_tokens:0,current_sol_volume:0,last_update_timestamp:0,
    ix_name:"sell".into(),mayhem_mode:c.is_mayhem_mode,cashback_fee_basis_points:if c.is_cashback_coin{creator_fee_bps}else{0},cashback:if c.is_cashback_coin{cf}else{0},
-   shareholders,
    buyback_fee:crate::transfer_fee_recovered::post_fee_amount(&transfer_fee,bf)?,buyback_fee_basis_points:if c.is_mayhem_mode{0}else{a.global.buyback_basis_points},
+   shareholders,
    quote_mint:c.quote_mint,quote_amount:quote,virtual_quote_reserves,real_quote_reserves,
    creator_fee_unclaimed:c.creator_fee,unparsed_trailing_field:quote_transfer_fee};
   emit!(ev);emit_cpi!(ev);Ok(())
@@ -428,3 +428,13 @@ pub mod user_token_transfers;
 
 #[path="v2_quote_token_transfers.rs"]
 pub mod quote_token_transfers;
+fn pay_user<'info>(native:bool,base_mint:&InterfaceAccount<'info,Mint>,curve:&Account<'info,BondingCurve>,destination:&AccountInfo<'info>,amount:u64,token_program:&Interface<'info,TokenInterface>,quote_mint:&InterfaceAccount<'info,Mint>,quote_source:Option<&AccountInfo<'info>>,quote_destination:Option<&AccountInfo<'info>>,bump:u8)->Result<()>{crate::trade::quote_payments::transfer_to_user(native,AsRef::<AccountInfo<'info>>::as_ref(base_mint),curve,destination,amount,token_program,quote_mint.decimals,AsRef::<AccountInfo<'info>>::as_ref(quote_mint),quote_source,quote_destination,bump)}
+fn pay_owned<'info>(native:bool,base_mint:&InterfaceAccount<'info,Mint>,curve:&Account<'info,BondingCurve>,destination:AccountInfo<'info>,amount:u64,token_program:&Interface<'info,TokenInterface>,quote_mint:&InterfaceAccount<'info,Mint>,quote_source:Option<&AccountInfo<'info>>,quote_destination:Option<&AccountInfo<'info>>,bump:u8)->Result<()>{crate::trade::quote_payments::transfer_to_owned(native,AsRef::<AccountInfo<'info>>::as_ref(base_mint),curve,destination,amount,token_program,quote_mint.decimals,AsRef::<AccountInfo<'info>>::as_ref(quote_mint),quote_source,quote_destination,bump)}
+fn pay_recipient<'info>(native:bool,base_mint:&InterfaceAccount<'info,Mint>,curve:&Account<'info,BondingCurve>,destination:&&UncheckedAccount<'info>,amount:u64,token_program:&Interface<'info,TokenInterface>,quote_mint:&InterfaceAccount<'info,Mint>,quote_source:Option<&AccountInfo<'info>>,quote_destination:Option<&AccountInfo<'info>>,bump:u8)->Result<()>{crate::trade::quote_payments::transfer_to_recipient(native,AsRef::<AccountInfo<'info>>::as_ref(base_mint),curve,destination,amount,token_program,quote_mint.decimals,AsRef::<AccountInfo<'info>>::as_ref(quote_mint),quote_source,quote_destination,bump)}
+#[event_cpi]
+#[derive(Accounts)]
+pub struct AdminReadonly<'info>{
+ #[account(mut,seeds=[b"global"],bump,has_one=authority @ crate::PumpError::NotAuthorized)]
+ pub global:Account<'info,crate::Global>,
+ pub authority:Signer<'info>,
+}

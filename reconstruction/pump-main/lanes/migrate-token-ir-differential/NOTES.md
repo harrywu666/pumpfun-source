@@ -28,7 +28,8 @@ after virtregrewriter, before/after block-placement) were captured in scratch cr
 | Trial | Bytes | ratio | calls | Tail merge | Notes |
 | --- | ---: | ---: | --- | --- | --- |
 | baseline d2cb88d | 8,424 | 0.5628 | 10/1 | yes | |
-| `let bump_seed=[bump];` before the branch (current branch) | 8,432 | 0.5781 | 10/1 | no | 1019/188, no gains/losses; bump slot moves, entry r1->r9 copy remains |
+| `let bump_seed=[bump];` before the branch (round 1) | 8,432 | 0.5781 | 10/1 | no | 1019/188, no gains/losses; bump slot moves, entry r1->r9 copy remains |
+| `let tp=&token_program;` + nn meta `tp.key()` (current branch, round 2) | 8,400 | 0.6116 | 10/1 | no | 1019/188, no gains/losses, sha 448c212b; bump stays in native branch; padding at -0x16c like original |
 
 Diagnostic-only captures (not proposed): `if !native` (identical), `match native` (identical),
 `if let true=native` (identical), Ok in each arm (identical), nn early return (identical), hoisted
@@ -43,3 +44,38 @@ Ledger attempt ids: 46e85036 (diagnosis), befa8c29, d5d12cc4, 4d00c855, 0d9630a6
 
 Entry register choice: the original keeps `token_program` in r9 and spills the output pointer r1 between
 the two Rc increments; ours copies r1 to r9 first. Untouched by the block-order fix.
+
+## IR-level fast loop and frame clue
+
+- `llc -O3 -filetype=obj -relocation-model=pic -mattr=+store-imm,+jmp-ext module.ll` on the module
+  emitted by `capture.py` reproduces the rustc-built target instructions exactly (0 diff lines), about 3 s per run.
+  This allows IR mutation experiments without a cargo build.
+- Alloca-region stack offsets: the original uses `-0x16c/-0x170` where baseline uses `-0x2a1/-0x2a5`
+  (`token_program1.sroa.12`, the 5-byte tail of the cloned AccountInfo). The original's token_program
+  clone temporary therefore sits much earlier in alloca order. It is the strongest remaining lead for the
+  entry register/spill residual.
+- Moving the bump store into the native branch or moving the bump alloca at IR level both lowered the ratio
+  (0.570 and 0.545), so the bump_seed local is probably not the original's outer local.
+
+## Round 2: the clone local must not be SSA for MIR GVN
+
+- The 5-byte padding piece of the AccountInfo clone (`*.sroa.12`, read uninitialized into infos[5]) has no lifetime
+  markers in the baseline, so it gets a private slot (-0x2a1). llc IR edits showed: lifetime.start just before the
+  infos memcpy in each branch plus end at the exits puts it at -0x16c/-0x170 exactly like the original
+  (base IR 0.5628 -> 0.6077); an entry-wide lifetime changes nothing. So the original copies padding from a
+  branch-local temporary, i.e. the cta_signed argument temp `_18 = move _8` survived GVN.
+- GVN only reuses SSA locals; a `let`-bound shared reference to the clone survives ReferencePropagation, so
+  `let token_program=token_program.clone();let tp=&token_program;` with the non-native meta using `tp.key()` keeps
+  `StorageLive/Dead(token_program)` and the arg temp. That one change gives both the shared exit drop block (no tail
+  merge, like the bump_seed hoist) and the native-only padding copy at -0x16c, and leaves the bump store in the
+  native branch. Official: 8,400 B, ratio 0.6116, 10/1 calls, 1019/188, no gains/losses.
+- Rejected this round: clone at each use (0.204), `let` clone first in each branch (0.210), `let mut` clone,
+  `to_account_info()` clone, `*token_program.key` meta (all byte-identical), native call through a closure (0.547).
+- Ledger ids: e6654786 (padding lifetime IR analysis), 8979a06b, 1e9c9569, ace77412, d98e0d93, da5a0e34, f67a1b06,
+  cc0d5805 (tp ref binding).
+- Remaining: entry register choice (r1 copied to r9 first; original keeps token_program in r9 and spills r1 after
+  the first Rc increment) and register/spill differences in the non-native metas/infos build.
+
+Rebased on origin/main f4065ddc3 (round-1 PR #1228 merged): main baseline 1020/188, target 8432 B 0.5781; with this change 1020/188, no gains/losses, target 8400 B 0.6116, unstripped sha 9038ea17bf9afaa4da70ffcf259691626b3f05b89a305337e5316e5257241e33.
+
+Follow-ups on the best form: tp borrow declared inside the nn branch and `*tp.key` are byte-identical to it; hoisting `tp.key()` into a let drops to 0.337. The best form's frame (0x448) and set of stack slots now equal the original's; what remains is register assignment and the interleaving of AccountInfo clone field loads vs Rc stores. Ledger ids 7d5d8432, 5b4d4a83 (+ tp-ref-key-hoisted).
