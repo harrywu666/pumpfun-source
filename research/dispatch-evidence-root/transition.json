@@ -5,7 +5,18 @@
   "asset": {
     "path": "scripts/recover_dispatch.py",
     "beforeSha256": "4ad747f662ebbe8f60910550d3780bfc8b0883cb090ce2d9c56aa64f34aa708e",
-    "afterSha256": "59e26534c1fa893f151002856bb3ddcb9126df5c5155ffe688925e89310b622c"
+    "afterSha256": "59e26534c1fa893f151002856bb3ddcb9126df5c5155ffe688925e89310b622c",
+    "landedIn": "1526951b5497ab5d035941bdd2c1286b0b281e17",
+    "successors": [
+      {
+        "commit": "c405e78e91b67d2caaf5669f3659634800690845",
+        "sha256": "7242fda946690246b6cc6d5ffd10241f34da47d3c0cb2cb9f52270de7f1be86a"
+      },
+      {
+        "commit": "67be3f05525adad81e7d7085c55e6e7777d5d44b",
+        "sha256": "6202905fcf62522646ee1070cdeebb8055d4ecc07a052a51f192c5136ef02574"
+      }
+    ]
   },
   "directPythonScriptSet": {
     "count": 275,
