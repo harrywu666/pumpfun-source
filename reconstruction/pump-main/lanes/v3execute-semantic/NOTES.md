@@ -47,3 +47,41 @@ unchanged on its own; ve without the wrapper scores the same 0.7687). The buy_v2
 - wrapper taking `&SellV3` (0.7262), all-three tuple let `(amount,user_ata,curve_ata)` (0.7524; system_program
   load moves after the merge as in the original, but the amount phi lands in pool_quote's spill slot),
   amount let then options let (0.7461).
+
+## Round 2 (on origin/main 60bdd8a, after PR #1189 merged)
+
+Baseline for round 2: origin/main 60bdd8a build `main60b`, 1020 normalized / 188 raw,
+0x83c00 3,432 B ratio 0.7687.
+
+| Trial | Change | cand bytes | ratio | official | ledger id |
+| --- | --- | ---: | ---: | --- | --- |
+| x1 (round 1, d2cb88d) | `transfer_base` checked add evaluated inside the `transfer_curve_mint_tokens` argument list | 3,464 | 0.8265 | 1019 / 188, no losses | 46763c906fb040a68afcfa5404a412f3 |
+| x2m | x1 + `let (user_quote_in,user_quote,curve_quote)=if is_sol{(add(..)?,None,None)}else{(pool_quote,Some(..),Some(..))};` | 3,440 | 0.8341 | 1020 / 188, no gains/losses vs main60b | c27b6574256b4feb8a24bbac6ceab875 |
+
+The three-value tuple let was a loss on its own (vc, 0.7524) but helps once the base amount
+is computed in argument position: the candidate reaches the original's 3,440 B.
+| z1 | curve wrapper params reordered `(token_program,mint,destination,source,authority,amount,seeds)` | 3,440 | 0.8507 | 1020 / 188, no gains/losses | 2cae605e6d7e43559da4bc7075a1928a |
+| q3 | `let (_b,quote_token_program)=(&a.base_token_program,&a.quote_token_program);` before apply_buy, used by both quote transfers | 3,448 | 0.9278 | 1020 / 188, no gains/losses | 6a64cc639f1c472e8a85c2685008f604 |
+| q6 | q3 with `base_token_program` from the tuple used by the curve transfer | 3,456 | 0.9645 | 1020 / 188, no gains/losses | db9e997f1c184ad8a90713364439b8e7 |
+
+| v1 | else branch binds `Some(associated_quote_bonding_curve)` first, tuple stays `(pool_quote,Some(user),curve)` | 3,456 | 0.9669 | 1020 / 188, no gains/losses | b273e3df12454df7a74bc9506b09fa25 |
+
+### Why round-1 early bindings were byte-identical
+
+`-Zdump-mir` shows MIR `ReferencePropagation` (pass 005-009) replacing the reborrows `&(*_12)` of a plain
+`let q=&a.quote_token_program;` with `&((*_1).4)` at each use, so the GEP lands back at the use sites. A
+binding made through a tuple aggregate survives RefProp (it runs before SROA), and the GEP stays before
+the `post` match. An llc experiment on the reduced IR (move `%_101` GEP into bb37) predicted exactly
+the 0.9278 that q3 then scored.
+
+### llc scheduling observation
+
+For independent loads in one block, the BPF scheduler emits them in reverse IR order. The original's
+src,dst,mint order at 0x83d58 means IR order mint,dst,src; the wrapper parameter order in z1 gives that.
+
+### Residual after q6 (17 diff slots, +16 B)
+
+- non-sol quote ATA loads: original `r1=[a+0x50]` then `r2=[a+0x38]`; candidate reversed. Swapping the tuple
+  order fixes the load order but swaps r1/r2 (q7/q8).
+- after `transfer_from_user`: original `jne r1,2,+0x14` straight to an error block without an r8 reload;
+  candidate `jeq r1,2,+1; ja` and an error block that reloads r8 from [r10-0x1e8].
