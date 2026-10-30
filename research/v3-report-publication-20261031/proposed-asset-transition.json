@@ -1,0 +1,19 @@
+{
+  "scope": "Proposed maintained-script transition: the two remaining v3 pump-family differentials publish their receipts through the shared report publisher with pump_trade_fixture's own REPORT_INPUTS, as eleven sibling runners already do, so --output can no longer replace the captured original, the IDL, the shared trade fixture or the candidate. Captures, historical packets and prior receipts are unchanged.",
+  "base": "52c0b087c",
+  "files": {
+    "scripts/pump_v3_configured_fee_differential.py": {
+      "before_sha256": "3f0e23a1716cfba889c35fbf270e3006e24046f3d1f77f22d922447c7d33622f",
+      "proposed_sha256": "c254ad0cfe1339eda53563bc550e9b4906e9c922b1bb24fca4c1a017d3f72a5e"
+    },
+    "scripts/pump_v3_token_extensions_differential.py": {
+      "before_sha256": "6ec7b4391b768a11a3baef159fff26efd036c9eb7287c019789ace7c131b44de",
+      "proposed_sha256": "0786f8ec803c3dfb9f0727f56579e891ba8f16d7df61ba963d15a76843c5a211"
+    }
+  },
+  "script_set_changed": false,
+  "program_source_changed": false,
+  "capture_bytes_changed": false,
+  "new_test": "tests/test_v3_report_publication.py",
+  "existing_ci_discovery": "contract-tests: python -B -m unittest discover -s tests -v"
+}

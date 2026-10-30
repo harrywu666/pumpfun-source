@@ -1,0 +1,33 @@
+{
+  "issue": "scripts/pump_v3_configured_fee_differential.py and scripts/pump_v3_token_extensions_differential.py wrote their report with a plain write_bytes to whatever --output named, so --output pointing at the captured original, the IDL, the shared trade fixture or the candidate replaced that input with the report and still exited 0. Every other runner that imports pump_trade_fixture already publishes through PumpReport with REPORT_INPUTS; these two were the last pump-family omissions.",
+  "base_revision": "52c0b087c",
+  "affected": [
+    "scripts/pump_v3_configured_fee_differential.py:113",
+    "scripts/pump_v3_token_extensions_differential.py:129"
+  ],
+  "reproduction": {
+    "fixture": "a temp root holding copies of scripts/, evidence/ and research/imported-lab/, plus a candidate",
+    "command": "python -B scripts/<script>.py --candidate <candidate.so> --output <copied evidence/upstream/pump.json>",
+    "base": "pump_v3_configured_fee_differential exits 0 with {\"cases\": 372, \"mismatches\": []}; pump_v3_token_extensions_differential exits 0 with {\"cases\": 126, \"mismatches\": []}; in both cases the IDL (sha256 7616681e...) becomes a report (173d0727... and 037ec75a... respectively)",
+    "after": "both exit 1 with ValueError: report output aliases an input, and the IDL keeps sha256 7616681e...",
+    "same_result": "the captured original, research/imported-lab/analysis/pump_fun/curve-fresh-trades-v3-signed-surfpool.json and the candidate are replaced or accepted the same way on the base scripts",
+    "fresh_control": "fresh destinations still publish: 372 and 126 cases with zero mismatches"
+  },
+  "change": "Construct pump_differential_output.PumpReport(a.output, f.R, a.candidate, __file__, extra_inputs=f.REPORT_INPUTS) right after argument parsing, before pin_program replaces a.candidate with its private snapshot, and publish with publisher.write(...). REPORT_INPUTS is the tuple pump_trade_fixture already exports for exactly this purpose and that eleven sibling runners pass; capturing the candidate before pin_program keeps the user-supplied path protected as well as the snapshot.",
+  "tests": {
+    "new_test": "tests/test_v3_report_publication.py",
+    "before": "2 tests, 8 failing subtests against the base scripts (four destinations for each of the two runners); the bounded-run control is not reached",
+    "after": "2 tests OK in 0.98s: the eight alias subtests plus one bounded real-VM run per runner that publishes a complete receipt with no staging leftovers"
+  },
+  "related_suites": {
+    "tests/test_pump_v3_configured_fee_pinned_image.py + tests/test_pump_v3_token_extensions_pinned_image.py": "6 tests OK",
+    "scripts/test_pump_differential_optimized_mode.py": "3 tests OK"
+  },
+  "required_checks": {
+    "scripts/test_tooling.py": "228 tests OK",
+    "scripts/verify_evidence.py": "9 captures verified; no source rebuild claimed"
+  },
+  "environment": {"platform": "macOS arm64", "python": "3.14.3"},
+  "not_claimed": "No differential result changes: the guard fires before any fixture or VM work and the full runs still report zero mismatches. The Mayhem fixture modules that also import pump_trade_fixture write no report of their own and are untouched.",
+  "peer_note": "No live binding pins these scripts' bytes; the pinned-image tests hash the captured program, not the runner, and reconstruction/pump-main/lanes records name them as provenance."
+}
