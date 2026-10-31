@@ -17,6 +17,9 @@ import unittest
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
+# The dynamically imported differential resolves its siblings from this path;
+# discovery from tests/ does not put scripts/ on sys.path.
+sys.path.insert(0, str(ROOT / "scripts"))
 SCRIPTS = tuple(
     ROOT / "scripts" / f"mayhem_{name}_differential.py"
     for name in ("buy", "buy_v2", "sell", "sell_v2", "pump_swap", "initialize_state")
@@ -136,6 +139,9 @@ class MayhemTradePinnedImageTests(unittest.TestCase):
             fixture.ROOT = root
             fixture.MAY = "mayhem"
             fixture.sha = lambda data: hashlib.sha256(data).hexdigest()
+            # The differential adds the fixture module's REPORT_INPUTS to the
+            # publisher's bound inputs; the fake fixture supplies the empty set.
+            fixture.f = types.SimpleNamespace(REPORT_INPUTS=())
 
             def run(case, binary=None):
                 data = Path(binary or original).read_bytes()
