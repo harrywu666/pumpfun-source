@@ -100,6 +100,7 @@ jobs:
               python -I -B tests/test_retained_multihop_outcomes.py
               python -I -B tests/test_dispatch_root.py
               python -I -B tests/test_analyze_input_admission.py
+              python -B scripts/test_analyze_inventory_order.py
               python scripts/test_tooling.py
               python -B scripts/test_pump_text_layout_linker_options.py
               python -B scripts/test_tooling_litesvm_collection.py

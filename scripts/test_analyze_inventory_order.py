@@ -29,7 +29,7 @@ def write_idls(root):
         (upstream / f'{name}.json').write_text(json.dumps({
             'address': f'{name}-address', 'metadata': {'name': name},
             'instructions': [{'name': 'ix', 'accounts': [{'name': 'system_program', 'address': '11111111111111111111111111111111'}]}],
-        }))
+        }), encoding='utf-8')
 
 
 def run_with_glob_order(reverse):
@@ -41,8 +41,19 @@ def run_with_glob_order(reverse):
     with tempfile.TemporaryDirectory() as tmp:
         root = pathlib.Path(tmp)
         write_idls(root)
+        # analyze() refuses to publish when either input set is empty, so the
+        # ordering test admits one ELF-free program instead of no program. Its
+        # bytes are only hashed and scanned for strings, so an empty image is
+        # enough here and the layout parser is stubbed.
+        capture = root / 'capture'
+        capture.mkdir()
+        (capture / 'deployed.so').write_bytes(b'')
         with mock.patch.object(analyze, 'ROOT', root), \
-                mock.patch.object(analyze, 'program_names', return_value=[]), \
+                mock.patch.object(analyze, 'program_names', return_value=['fixture']), \
+                mock.patch.object(analyze, 'capture_directory', return_value=capture), \
+                mock.patch.object(analyze, 'elf_layout',
+                                  return_value={'elf_extent': 0, 'trailing_bytes': 0,
+                                                'trailing_all_zero': True}), \
                 mock.patch.object(pathlib.Path, 'glob', ordered_glob), \
                 contextlib.redirect_stdout(io.StringIO()):
             analyze.analyze()
