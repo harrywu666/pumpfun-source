@@ -29,6 +29,15 @@ def main():
     d = json.loads((args.receipts / 'comparison.json').read_text())
     manifest = json.loads((ROOT / 'fixture-manifest.json').read_text())
     captured = manifest['snapshots']['eligible']['accounts']
+    # The receipt loop is a zip over these two lists, so a manifest with no
+    # eligible family, or a comparison with fewer cases than families, would
+    # verify nothing (or silently drop families) and still report success.
+    families = manifest['eligible_families']
+    if not families:
+        raise ValueError('fixture manifest has no eligible families to verify')
+    cases = d.get('cases')
+    if not isinstance(cases, list) or len(cases) != len(families) or d['case_count'] != len(families):
+        raise ValueError('comparison cases do not match the eligible families')
     sequential = 'sequential_second' in d['cases'][0]['original']
     assert d['case_count'] == 3 and d['signed_transactions'] == (12 if sequential else 6)
     assert d['inputs_unchanged']
@@ -38,7 +47,7 @@ def main():
     assert sequential
     assert sha((REPO / 'scripts/mayhem_burn_sequence.py').read_bytes()) == d['runner_sha256']
     results = []
-    for i, (family, case) in enumerate(zip(manifest['eligible_families'], d['cases'])):
+    for i, (family, case) in enumerate(zip(families, d['cases'])):
         fields = family['accounts']
         assert case == json.loads((args.receipts / f'case-{i}.json').read_text())
         assert case['same_signed_message']
@@ -155,7 +164,7 @@ def main():
               'verified_transactions': d['signed_transactions'], 'sequential_second_burns': 6 if sequential else 0,
               'known_log_differences': ['compute-unit numbers', 'second-burn source filename/line'] if sequential else ['compute-unit numbers'],
               'cases': results, 'success': True}
-    report.update({'original_sha256': d['cases'][0]['original']['binary_sha256'], 'candidate_sha256': d['cases'][0]['candidate']['binary_sha256'], 'case_count': 6, 'mismatches': [], 'raw_log_mismatch_cases': d['mismatches'], 'comparison_fields': 'Complete nonprogram account bytes/metadata/balances, error name/number/message, events, return data, inner instructions, ordinary signed transaction bytes. Compute usage and recorded source locations differ.'})
+    report.update({'original_sha256': d['cases'][0]['original']['binary_sha256'], 'candidate_sha256': d['cases'][0]['candidate']['binary_sha256'], 'case_count': 2 * len(results), 'mismatches': [], 'raw_log_mismatch_cases': d['mismatches'], 'comparison_fields': 'Complete nonprogram account bytes/metadata/balances, error name/number/message, events, return data, inner instructions, ordinary signed transaction bytes. Compute usage and recorded source locations differ.'})
     (args.receipts / 'verification.json').write_text(json.dumps(report, indent=2) + '\n',encoding='utf-8',newline='\n')
     print(json.dumps(report, indent=2))
 
